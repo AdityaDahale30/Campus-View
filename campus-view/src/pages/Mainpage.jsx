@@ -80,7 +80,7 @@ const Mainpage = () => {
                   className="btn-secondary"
                   onClick={() => navigate("/signup")}
                 >
-                  Sign Up
+                  S
                 </button>
               </div>
 
