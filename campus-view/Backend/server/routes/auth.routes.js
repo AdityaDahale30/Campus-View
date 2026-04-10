@@ -95,71 +95,39 @@ const sanitizeUser = (user) => {
 
 router.post("/login", async (req, res) => {
   try {
-    const { name, password, role } = req.body;
+    console.log("🔥 LOGIN API HIT");
+    console.log("BODY:", req.body);
 
-    const table = getTableByRole(role);
+    const { enrollment, password } = req.body;
 
-    if (!table) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid role",
-      });
-    }
-
-    const fields = getLoginFieldsByRole(role);
-
-    const [results] = await db.query(
-      `SELECT ${fields} FROM ${table} WHERE name = ? AND role = ?`,
-      [name, role]
+    const [users] = await db.query(
+      "SELECT * FROM students WHERE enrollment_no = ?",
+      [enrollment]
     );
 
-    if (results.length === 0) {
-      return res.status(401).json({
-        success: false,
-        message: "User not found",
-      });
+    console.log("DB RESULT:", users);
+
+    if (users.length === 0) {
+      return res.json({ success: false, message: "User not found" });
     }
 
-    const user = results[0];
+    const user = users[0];
 
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
-      return res.status(401).json({
-        success: false,
-        message: "Wrong password",
-      });
+    console.log("USER PASSWORD:", user.password);
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    console.log("PASSWORD MATCH:", isMatch);
+
+    if (!isMatch) {
+      return res.json({ success: false, message: "Invalid password" });
     }
 
-    const token = jwt.sign(
-      { id: user.id, role: user.role, table },
-      "campusview_secret",
-      { expiresIn: "1d" }
-    );
+    res.json({ success: true, user });
 
- const safeUser = sanitizeUser(user);
-
-return res.json({
-  success: true,
-  token,
-  user: {
-    ...safeUser,
-
-    // 🔥 IMPORTANT FIX (ADD THESE)
-    userClass: safeUser.batch || "", 
-    userYear: safeUser.year || "",
-    userDepartment: safeUser.department || "",
-
-    // optional (already exists but safe)
-    enrollment: safeUser.enrollment || safeUser.enrollment_no || ""
-  }
-});
-
-  } catch (err) {
-    console.error("🔥 LOGIN ERROR:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Server error",
-    });
+  } catch (error) {
+    console.log("🔥 LOGIN ERROR:", error); // 👈 VERY IMPORTANT
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
