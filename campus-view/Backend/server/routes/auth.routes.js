@@ -110,10 +110,19 @@ router.post("/login", async (req, res) => {
     }
 
     // 🔥 QUERY USER
-    const [rows] = await db.query(
-      `SELECT * FROM ${table} WHERE enrollment = ? OR id = ?`,
-      [enrollment, enrollment]
-    );
+ // 🔥 QUERY USER (FIXED ROLE-WISE)
+let query = "";
+let values = [];
+
+if (role === "student") {
+  query = "SELECT * FROM students WHERE enrollment = ?";
+  values = [enrollment];
+} else {
+  query = `SELECT * FROM ${table} WHERE id = ?`;
+  values = [enrollment];
+}
+
+const [rows] = await db.query(query, values);
 
     if (rows.length === 0) {
       return res.json({ success: false, message: "User not found" });
