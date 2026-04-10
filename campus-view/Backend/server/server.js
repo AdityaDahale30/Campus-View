@@ -35,11 +35,14 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://campus-view-iiyp.vercel.app"
+    "https://campus-view-iiyp.vercel.app",
+    "https://campus-view-1hm8.vercel.app" // 👈 ADD THIS (your new URL)
   ],
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
+app.options("*", cors());
 app.use(express.json({ limit: "100mb" }));
 
 app.use("/chat", chatRoutes);
