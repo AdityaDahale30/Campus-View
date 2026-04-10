@@ -158,10 +158,10 @@ const handleRegister = async (e) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        ...formData,
-        profile_image: imageBase64,
-      }),
+   body: JSON.stringify({
+  ...formData,
+  profile_image: null,   // 🔥 FORCE NULL
+}),
     });
 
     const data = await response.json();
@@ -318,13 +318,12 @@ const handleRegister = async (e) => {
 
           <div className="input-group">
             <label>Profile Image</label>
-            <input
-              type="file"
-              name="profile_image"
-              accept="image/*"
-              onChange={handleChange}
-              required
-            />
+         <input
+  type="file"
+  name="profile_image"
+  accept="image/*"
+  onChange={handleChange}
+/>
           </div>
 
           <div className="input-group">

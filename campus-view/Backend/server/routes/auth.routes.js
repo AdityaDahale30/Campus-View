@@ -144,42 +144,9 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    let profile_image = null;
+  let profile_image = null;
 
-    // ✅ SAFE IMAGE HANDLING
-    if (req.body.profile_image) {
-      try {
-        const base64Data = req.body.profile_image;
-
-        const matches = base64Data.match(/^data:(image\/\w+);base64,(.+)$/);
-
-        if (matches) {
-          const ext = matches[1].split("/")[1];
-          const buffer = Buffer.from(matches[2], "base64");
-
-          let folder = "students";
-          if (role.includes("faculty")) folder = "faculty";
-          else if (role === "hod") folder = "hods";
-          else if (role === "principal") folder = "principals";
-
-          const dir = `./uploads/${folder}`;
-
-          // ✅ CREATE FOLDER
-          if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-          }
-
-          const fileName = Date.now() + "." + ext;
-          const filePath = `${dir}/${fileName}`;
-
-          fs.writeFileSync(filePath, buffer);
-
-          profile_image = `${folder}/${fileName}`;
-        }
-      } catch (err) {
-        console.log("IMAGE ERROR:", err.message);
-      }
-    }
+// 🔥 TEMP DISABLE IMAGE (IMPORTANT FOR RENDER)
 
     const table = getTableByRole(role);
 
