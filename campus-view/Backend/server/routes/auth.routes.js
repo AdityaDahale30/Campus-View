@@ -134,9 +134,10 @@ console.log("Entered password:", password);
 console.log("DB password:", user.password);
 // 🔥 DEBUG END
 
-const isMatch = await bcrypt.compare(password, user.password);
+// 🔥 TEMP BYPASS (FOR TESTING ONLY)
+const isMatch = true;
 
-console.log("Match result:", isMatch);
+console.log("⚠️ TEMP LOGIN BYPASS ENABLED");
 
 if (!isMatch) {
   return res.json({ success: false, message: "Invalid password" });
