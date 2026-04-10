@@ -123,8 +123,9 @@ router.post("/login", async (req, res) => {
       });
     }
 
+    // ✅ MATCH BY NAME (case insensitive)
     const [rows] = await db.query(
-      `SELECT * FROM ${table} WHERE TRIM(LOWER(name)) = TRIM(LOWER(?)) LIMIT 1`,
+      `SELECT * FROM ${table} WHERE LOWER(name) = LOWER(?) LIMIT 1`,
       [name]
     );
 
@@ -137,13 +138,7 @@ router.post("/login", async (req, res) => {
 
     const user = rows[0];
 
-    if (!user.password) {
-      return res.status(500).json({
-        success: false,
-        message: "Password missing in DB",
-      });
-    }
-
+    // ✅ CHECK PASSWORD
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
@@ -153,12 +148,14 @@ router.post("/login", async (req, res) => {
       });
     }
 
+    // ✅ REMOVE PASSWORD
     const { password: _, ...safeUser } = user;
 
     return res.json({
       success: true,
       user: safeUser,
     });
+
   } catch (error) {
     console.log("🔥 LOGIN ERROR:", error);
     return res.status(500).json({
