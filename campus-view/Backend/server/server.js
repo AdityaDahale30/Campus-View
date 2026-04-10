@@ -86,8 +86,7 @@ subFolders.forEach((folder) => {
 
 /* ==================================================== FACE API SETUP ============================================================== */
 
-const { Canvas, Image, ImageData } = canvas;
-faceapi.env.monkeyPatch({ Canvas, Image, ImageData });
+
 
 /* ==================================================== UTILITY FUNCTIONS ============================================================== */
 
