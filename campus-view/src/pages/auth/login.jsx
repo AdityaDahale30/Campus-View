@@ -18,11 +18,11 @@ const goToHome = () => {
 
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    name: "",
-    role: "student",
-    password: "",
-  });
+const [formData, setFormData] = useState({
+  name: "",
+  role: "student",
+  password: "",
+});
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -123,17 +123,17 @@ const goToHome = () => {
         <form onSubmit={handleSubmit}>
 
           {/* Name */}
-          <div className="input-group">
-            <label>Name</label>
-            <input
-              type="text"
-              name="name"
-              placeholder="Enter Name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
+         <div className="input-group">
+  <label>Name</label>
+  <input
+    type="text"
+    name="name"
+    placeholder="Enter Name"
+    value={formData.name}
+    onChange={handleChange}
+    required
+  />
+</div>
 
           {/* Role */}
           <div className="input-group">

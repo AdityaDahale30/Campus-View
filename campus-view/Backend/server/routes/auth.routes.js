@@ -97,7 +97,24 @@ router.post("/login", async (req, res) => {
   try {
     const { name, password, role } = req.body;
 
-    const table = getTableByRole(role);
+    if (!name || !password || !role) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing login fields",
+      });
+    }
+
+    let table = "";
+
+    if (role === "student") table = "students";
+    else if (
+      role === "faculty" ||
+      role === "faculty_class_teacher" ||
+      role === "faculty_teacher_guardian" ||
+      role === "hod_faculty"
+    ) table = "faculty";
+    else if (role === "hod") table = "hods";
+    else if (role === "principal") table = "principals";
 
     if (!table) {
       return res.status(400).json({
@@ -106,59 +123,47 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    const fields = getLoginFieldsByRole(role);
-
-    const [results] = await db.query(
-      `SELECT ${fields} FROM ${table} WHERE name = ? AND role = ?`,
-      [name, role]
+    const [rows] = await db.query(
+      `SELECT * FROM ${table} WHERE TRIM(LOWER(name)) = TRIM(LOWER(?)) LIMIT 1`,
+      [name]
     );
 
-    if (results.length === 0) {
-      return res.status(401).json({
+    if (rows.length === 0) {
+      return res.json({
         success: false,
         message: "User not found",
       });
     }
 
-    const user = results[0];
+    const user = rows[0];
 
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
-      return res.status(401).json({
+    if (!user.password) {
+      return res.status(500).json({
         success: false,
-        message: "Wrong password",
+        message: "Password missing in DB",
       });
     }
 
-    const token = jwt.sign(
-      { id: user.id, role: user.role, table },
-      "campusview_secret",
-      { expiresIn: "1d" }
-    );
+    const isMatch = await bcrypt.compare(password, user.password);
 
- const safeUser = sanitizeUser(user);
+    if (!isMatch) {
+      return res.json({
+        success: false,
+        message: "Invalid password",
+      });
+    }
 
-return res.json({
-  success: true,
-  token,
-  user: {
-    ...safeUser,
+    const { password: _, ...safeUser } = user;
 
-    // 🔥 IMPORTANT FIX (ADD THESE)
-    userClass: safeUser.batch || "", 
-    userYear: safeUser.year || "",
-    userDepartment: safeUser.department || "",
-
-    // optional (already exists but safe)
-    enrollment: safeUser.enrollment || safeUser.enrollment_no || ""
-  }
-});
-
-  } catch (err) {
-    console.error("🔥 LOGIN ERROR:", err);
+    return res.json({
+      success: true,
+      user: safeUser,
+    });
+  } catch (error) {
+    console.log("🔥 LOGIN ERROR:", error);
     return res.status(500).json({
       success: false,
-      message: "Server error",
+      message: error.message,
     });
   }
 });
