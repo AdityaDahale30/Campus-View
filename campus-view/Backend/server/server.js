@@ -5,7 +5,6 @@ console.log("🔥 ACTIVE SERVER FILE LOADED 🔥");
 import fs from "fs";
 import path from "path";
 import express from "express";
-import cors from "cors";
 import db from "./db.js";
 import { fileURLToPath } from "url";
 import cookieParser from "cookie-parser";
