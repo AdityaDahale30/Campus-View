@@ -26,66 +26,6 @@ const getTableByRole = (role) => {
   return null;
 };
 
-const getLoginFieldsByRole = (role) => {
-  if (role === "student") {
-    return `
-      id,
-      name,
-      role,
-      year,
-      department,
-      batch,
-      tg_name,
-      enrollment,
-      profile_image,
-      gatepass_available,
-      password
-    `;
-  }
-
-  if (
-    role === "faculty" ||
-    role === "faculty_class_teacher" ||
-    role === "faculty_teacher_guardian" ||
-    role === "hod_faculty"
-  ) {
-    return `
-      id,
-      name,
-      role,
-      year,
-      department,
-      batch,
-      profile_image,
-      gatepass_available,
-      password
-    `;
-  }
-
-  if (role === "hod") {
-    return `
-      id,
-      name,
-      role,
-      department,
-      profile_image,
-      password
-    `;
-  }
-
-  if (role === "principal") {
-    return `
-      id,
-      name,
-      role,
-      profile_image,
-      password
-    `;
-  }
-
-  return "*";
-};
-
 const sanitizeUser = (user) => {
   const { password, ...safeUser } = user;
   return safeUser;
@@ -95,88 +35,80 @@ const sanitizeUser = (user) => {
 
 router.post("/login", async (req, res) => {
   try {
- const { name, password, role } = req.body;
+    const { name, password, role } = req.body;
 
-if (!name || !password || !role) {
-  return res.status(400).json({
-    success: false,
-    message: "Missing login fields"
-  });
-}
-
-if (!enrollment || !password || !role) {
-  return res.status(400).json({
-    success: false,
-    message: "Missing login fields"
-  });
-}
+    // ✅ VALIDATION
+    if (!name || !password || !role) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing login fields",
+      });
+    }
 
     let table = "";
 
-   if (role === "student") table = "students";
-else if (role && role.includes("faculty")) table = "faculty";
+    if (role === "student") table = "students";
+    else if (role && role.includes("faculty")) table = "faculty";
     else if (role === "hod") table = "hods";
     else if (role === "principal") table = "principals";
 
     if (!table) {
-      return res.status(400).json({ success: false, message: "Invalid role" });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid role",
+      });
     }
-console.log("LOGIN INPUT:", { name, role });
-    // ✅ 👉 REPLACE HERE
-    let query = "";
-    let values = [];
 
+    console.log("LOGIN INPUT:", { name, role });
 
-
- query = `SELECT * FROM ${table} WHERE name = ?`;
-values = [name];
-
-    const [rows] = await db.query(query, values);
+    // ✅ NAME BASED LOGIN
+    const query = `SELECT * FROM ${table} WHERE name = ?`;
+    const [rows] = await db.query(query, [name]);
 
     if (rows.length === 0) {
-      return res.json({ success: false, message: "User not found" });
+      return res.json({
+        success: false,
+        message: "User not found",
+      });
     }
 
     const user = rows[0];
 
-  // 🔥 DEBUG START
-console.log("Entered password:", password);
-console.log("DB password:", user.password);
-// 🔥 DEBUG END
+    console.log("Entered password:", password);
+    console.log("DB password:", user.password);
 
-// 🔥 TEMP BYPASS (FOR TESTING ONLY)
-// 🔥 FINAL LOGIN (WORKING)
+    if (!user.password) {
+      return res.status(500).json({
+        success: false,
+        message: "Password missing in DB",
+      });
+    }
 
-if (!user.password) {
-  return res.status(500).json({
-    success: false,
-    message: "Password missing in DB"
-  });
-}
+    const isMatch = await bcrypt.compare(password, user.password);
 
-const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.json({
+        success: false,
+        message: "Invalid password",
+      });
+    }
 
-if (!isMatch) {
-  return res.json({
-    success: false,
-    message: "Invalid password"
-  });
-}
-
-res.json({
-  success: true,
-  user: sanitizeUser(user)
-});
+    return res.json({
+      success: true,
+      user: sanitizeUser(user),
+    });
 
   } catch (error) {
-  console.log("🔥 LOGIN ERROR:", error);
+    console.log("🔥 LOGIN ERROR:", error);
 
-  res.status(500).json({
-    success: false,
-    message: error.message // 👈 SHOW REAL ERROR
-  });
-}
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 });
+
+/* ================= PASSWORD VALIDATION ================= */
 
 const validatePassword = (password) => {
   if (!password) return "Password is required";
@@ -216,18 +148,18 @@ const validatePassword = (password) => {
   ];
 
   if (blockedPasswords.includes(password.toLowerCase())) {
-    return "This password is too common. Please choose a stronger password";
+    return "This password is too common.";
   }
 
   return null;
 };
+
 /* ================= REGISTER ================= */
 
 router.post("/register", async (req, res) => {
   console.log("🔥 REGISTER ROUTE HIT");
 
-
-    const {
+  const {
     name,
     role,
     year,
@@ -240,49 +172,42 @@ router.post("/register", async (req, res) => {
 
   const passwordError = validatePassword(password);
 
-if (passwordError) {
-  return res.status(400).json({
-    success: false,
-    message: passwordError,
-  });
-}
-  
-
-  
-let profile_image = null;
-
-if (req.body.profile_image) {
-  const base64Data = req.body.profile_image;
-
-  const matches = base64Data.match(/^data:(image\/\w+);base64,(.+)$/);
-
-  if (!matches) {
+  if (passwordError) {
     return res.status(400).json({
       success: false,
-      message: "Invalid image format",
+      message: passwordError,
     });
   }
 
-  const ext = matches[1].split("/")[1]; // jpg/png
-  const buffer = Buffer.from(matches[2], "base64");
+  let profile_image = null;
 
-  // 🔥 folder by role
-  let folder = "students";
+  if (req.body.profile_image) {
+    const base64Data = req.body.profile_image;
+    const matches = base64Data.match(/^data:(image\/\w+);base64,(.+)$/);
 
-  if (role.includes("faculty")) folder = "faculty";
-  else if (role === "hod") folder = "hods";
-  else if (role === "principal") folder = "principals";
+    if (!matches) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid image format",
+      });
+    }
 
-  const fileName = Date.now() + "." + ext;
+    const ext = matches[1].split("/")[1];
+    const buffer = Buffer.from(matches[2], "base64");
 
-  const filePath = `uploads/${folder}/${fileName}`;
+    let folder = "students";
 
-  fs.writeFileSync(filePath, buffer);
+    if (role.includes("faculty")) folder = "faculty";
+    else if (role === "hod") folder = "hods";
+    else if (role === "principal") folder = "principals";
 
-  profile_image = `${folder}/${fileName}`;
-}
+    const fileName = Date.now() + "." + ext;
+    const filePath = `uploads/${folder}/${fileName}`;
 
+    fs.writeFileSync(filePath, buffer);
 
+    profile_image = `${folder}/${fileName}`;
+  }
 
   try {
     const table = getTableByRole(role);
@@ -309,67 +234,46 @@ if (req.body.profile_image) {
         });
       }
 
-      const sql = `
-        INSERT INTO students
-        (name, role, year, department, batch, tg_name, enrollment, password, profile_image, gatepass_available)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `;
-await db.query(
-  `INSERT INTO students 
-  (name, role, year, department, batch, tg_name, enrollment, password, profile_image)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-  [name, role, year, department, batch, tg_name, enrollment, hashedPassword, profile_image]
-);
-    } else if (
-      role === "faculty" ||
-      role === "faculty_class_teacher" ||
-      role === "faculty_teacher_guardian" ||
-      role === "hod_faculty"
-    ) {
-      const sql = `
-        INSERT INTO faculty
-        (name, role, year, department, batch, password, profile_image, gatepass_available)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `;
+      await db.query(
+        `INSERT INTO students 
+        (name, role, year, department, batch, tg_name, enrollment, password, profile_image)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [name, role, year, department, batch, tg_name, enrollment, hashedPassword, profile_image]
+      );
 
-     await db.query(
-  `INSERT INTO faculty
-  (name, role, year, department, batch, password, profile_image)
-  VALUES (?, ?, ?, ?, ?, ?, ?)`,
-  [name, role, year, department, batch, hashedPassword, profile_image]
-);
+    } else if (role.includes("faculty")) {
+
+      await db.query(
+        `INSERT INTO faculty
+        (name, role, year, department, batch, password, profile_image)
+        VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [name, role, year, department, batch, hashedPassword, profile_image]
+      );
+
     } else if (role === "hod") {
-      const sql = `
-        INSERT INTO hods
+
+      await db.query(
+        `INSERT INTO hods
         (name, role, department, password, profile_image)
-        VALUES (?, ?, ?, ?, ?)
-      `;
+        VALUES (?, ?, ?, ?, ?)`,
+        [name, role, department, hashedPassword, profile_image]
+      );
 
- await db.query(
-  `INSERT INTO hods
-  (name, role, department, password, profile_image)
-  VALUES (?, ?, ?, ?, ?)`,
-  [name, role, department, hashedPassword, profile_image]
-);
     } else if (role === "principal") {
-      const sql = `
-        INSERT INTO principals
-        (name, role, password, profile_image)
-        VALUES (?, ?, ?, ?)
-      `;
 
-await db.query(
-  `INSERT INTO principals
-  (name, role, password, profile_image)
-  VALUES (?, ?, ?, ?)`,
-  [name, role, hashedPassword, profile_image]
-);
+      await db.query(
+        `INSERT INTO principals
+        (name, role, password, profile_image)
+        VALUES (?, ?, ?, ?)`,
+        [name, role, hashedPassword, profile_image]
+      );
     }
 
     return res.status(201).json({
       success: true,
       message: "Registration Successful",
     });
+
   } catch (err) {
     console.log("REGISTER ERROR:", err);
 
