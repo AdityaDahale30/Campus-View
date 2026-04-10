@@ -19,7 +19,7 @@ import roamingRoutes from "./routes/roaming.routes.js";
 import alertRoutes from "./routes/alert.routes.js";
 import lectureAnalyticsRoutes from "./routes/lectureAnalytics.routes.js";
 import departmentReportRoutes from "./routes/departmentReport.routes.js";
-import canvas from "canvas";
+
 
 
 /* ========================================== FIX __dirname (ES MODULE FIX) ========================================================== */
