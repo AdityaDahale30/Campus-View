@@ -137,9 +137,13 @@ router.post("/login", async (req, res) => {
     res.json({ success: true, user });
 
   } catch (error) {
-    console.log("🔥 LOGIN ERROR:", error);
-    res.status(500).json({ success: false, message: "Server error" });
-  }
+  console.log("🔥 LOGIN ERROR:", error);
+
+  res.status(500).json({
+    success: false,
+    message: error.message // 👈 SHOW REAL ERROR
+  });
+}
 });
 
 const validatePassword = (password) => {
