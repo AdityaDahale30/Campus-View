@@ -19,7 +19,6 @@ import roamingRoutes from "./routes/roaming.routes.js";
 import alertRoutes from "./routes/alert.routes.js";
 import lectureAnalyticsRoutes from "./routes/lectureAnalytics.routes.js";
 import departmentReportRoutes from "./routes/departmentReport.routes.js";
-import * as faceapi from "face-api.js";
 import canvas from "canvas";
 
 
