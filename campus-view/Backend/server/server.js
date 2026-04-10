@@ -32,7 +32,14 @@ const app = express();
 
 /* ================= MIDDLEWARE ================= */
 
-app.use(cors({ origin: "*" }));
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://campus-view-iiyp.vercel.app"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 app.use(express.json({ limit: "100mb" }));
 
 app.use("/chat", chatRoutes);
@@ -388,7 +395,7 @@ app.post("/auto-face", async (req, res) => {
 
 /* ================= START SERVER ================= */
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 process.on("uncaughtException", (err) => {
   console.log("🔥 SERVER CRASH PREVENTED:", err);
