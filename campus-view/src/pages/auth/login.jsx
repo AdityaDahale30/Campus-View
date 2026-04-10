@@ -19,7 +19,7 @@ const goToHome = () => {
   const navigate = useNavigate();
 
 const [formData, setFormData] = useState({
-  enrollment: "",
+  name: "",
   role: "student",
   password: "",
 });
@@ -127,10 +127,10 @@ if (data.token) {
 
      
 {/* ✅ NEW */}
-<label>Enrollment</label>
+<label>Name</label>
 <input
   type="text"
-  name="enrollment"
+  name="name"
   placeholder="Enter Enrollment Number"
   value={formData.enrollment}
   onChange={handleChange}

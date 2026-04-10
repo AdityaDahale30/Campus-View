@@ -95,8 +95,14 @@ const sanitizeUser = (user) => {
 
 router.post("/login", async (req, res) => {
   try {
-    
-    const { enrollment, password, role } = req.body;
+ const { name, password, role } = req.body;
+
+if (!name || !password || !role) {
+  return res.status(400).json({
+    success: false,
+    message: "Missing login fields"
+  });
+}
 
 if (!enrollment || !password || !role) {
   return res.status(400).json({
@@ -115,22 +121,15 @@ else if (role && role.includes("faculty")) table = "faculty";
     if (!table) {
       return res.status(400).json({ success: false, message: "Invalid role" });
     }
-
-    console.log("LOGIN INPUT:", { enrollment, role });
-
+console.log("LOGIN INPUT:", { name, role });
     // ✅ 👉 REPLACE HERE
     let query = "";
     let values = [];
 
 
 
-    if (role === "student") {
-      query = "SELECT * FROM students WHERE enrollment = ?";
-      values = [enrollment];
-    } else {
-      query = `SELECT * FROM ${table} WHERE id = ?`;
-      values = [enrollment];
-    }
+ query = `SELECT * FROM ${table} WHERE name = ?`;
+values = [name];
 
     const [rows] = await db.query(query, values);
 
