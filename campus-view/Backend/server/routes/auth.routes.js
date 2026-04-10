@@ -95,38 +95,53 @@ const sanitizeUser = (user) => {
 
 router.post("/login", async (req, res) => {
   try {
-    console.log("🔥 LOGIN API HIT");
-    console.log("BODY:", req.body);
+    const { enrollment, password, role } = req.body;
 
-    const { enrollment, password } = req.body;
+    let table = "";
 
-    const [users] = await db.query(
-      "SELECT * FROM students WHERE enrollment_no = ?",
-      [enrollment]
+    // 🔥 SELECT TABLE BASED ON ROLE
+    if (role === "student") table = "students";
+    else if (role.includes("faculty")) table = "faculty";
+    else if (role === "hod") table = "hods";
+    else if (role === "principal") table = "principals";
+
+    if (!table) {
+      return res.status(400).json({ success: false, message: "Invalid role" });
+    }
+
+    // 🔥 QUERY USER
+    const [rows] = await db.query(
+      `SELECT * FROM ${table} WHERE enrollment = ? OR id = ?`,
+      [enrollment, enrollment]
     );
 
-    console.log("DB RESULT:", users);
-
-    if (users.length === 0) {
+    if (rows.length === 0) {
       return res.json({ success: false, message: "User not found" });
     }
 
-    const user = users[0];
+    const user = rows[0];
 
-    console.log("USER PASSWORD:", user.password);
+    // ⚠️ VERY IMPORTANT CHECK
+    if (!user.password) {
+      return res.status(500).json({
+        success: false,
+        message: "Password missing in DB"
+      });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-
-    console.log("PASSWORD MATCH:", isMatch);
 
     if (!isMatch) {
       return res.json({ success: false, message: "Invalid password" });
     }
 
-    res.json({ success: true, user });
+    res.json({
+      success: true,
+      user
+    });
 
   } catch (error) {
-    console.log("🔥 LOGIN ERROR:", error); // 👈 VERY IMPORTANT
+    console.log("🔥 LOGIN ERROR:", error); // 👈 CHECK THIS IN RENDER LOGS
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
