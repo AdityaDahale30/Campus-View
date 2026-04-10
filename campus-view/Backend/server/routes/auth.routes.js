@@ -100,8 +100,8 @@ router.post("/login", async (req, res) => {
 
     let table = "";
 
-    if (role === "student") table = "students";
-    else if (role.includes("faculty")) table = "faculty";
+   if (role === "student") table = "students";
+else if (role && role.includes("faculty")) table = "faculty";
     else if (role === "hod") table = "hods";
     else if (role === "principal") table = "principals";
 
@@ -138,9 +138,9 @@ const isMatch = await bcrypt.compare(password, user.password);
 
 console.log("Match result:", isMatch);
 
-    if (!isMatch) {
-      return res.json({ success: false, message: "Invalid password" });
-    }
+if (!isMatch) {
+  return res.json({ success: false, message: "Invalid password" });
+}
 
     res.json({ success: true, user });
 
