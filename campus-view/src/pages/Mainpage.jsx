@@ -35,7 +35,7 @@ const Mainpage = () => {
             <img src="src/logo.jpg" alt="Campus Logo" />
 
             <div className="logo">
-              <span>Campus</span>
+              <span>hello</span>
             </div>
 
             <div className="nav-links">
