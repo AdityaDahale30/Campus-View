@@ -18,11 +18,11 @@ const goToHome = () => {
 
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    name: "",
-    role: "student",
-    password: "",
-  });
+const [formData, setFormData] = useState({
+  enrollment: "",
+  role: "student",
+  password: "",
+});
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -74,7 +74,10 @@ const goToHome = () => {
       if (response.ok && data.success) {
 
         // 🔥 STORE TOKEN
-        localStorage.setItem("token", data.token);
+     // ✅ NEW
+if (data.token) {
+  localStorage.setItem("token", data.token);
+}
 
         // 🔥 NORMALIZED USER OBJECT (VERY IMPORTANT)
         const userData = {
@@ -122,18 +125,17 @@ const goToHome = () => {
 
         <form onSubmit={handleSubmit}>
 
-          {/* Name */}
-          <div className="input-group">
-            <label>Name</label>
-            <input
-              type="text"
-              name="name"
-              placeholder="Enter Name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
+     
+{/* ✅ NEW */}
+<label>Enrollment</label>
+<input
+  type="text"
+  name="enrollment"
+  placeholder="Enter Enrollment Number"
+  value={formData.enrollment}
+  onChange={handleChange}
+  required
+/>
 
           {/* Role */}
           <div className="input-group">

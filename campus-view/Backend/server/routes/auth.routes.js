@@ -98,6 +98,13 @@ router.post("/login", async (req, res) => {
     
     const { enrollment, password, role } = req.body;
 
+if (!enrollment || !password || !role) {
+  return res.status(400).json({
+    success: false,
+    message: "Missing login fields"
+  });
+}
+
     let table = "";
 
    if (role === "student") table = "students";
@@ -109,9 +116,13 @@ else if (role && role.includes("faculty")) table = "faculty";
       return res.status(400).json({ success: false, message: "Invalid role" });
     }
 
+    console.log("LOGIN INPUT:", { enrollment, role });
+
     // ✅ 👉 REPLACE HERE
     let query = "";
     let values = [];
+
+
 
     if (role === "student") {
       query = "SELECT * FROM students WHERE enrollment = ?";
@@ -135,15 +146,28 @@ console.log("DB password:", user.password);
 // 🔥 DEBUG END
 
 // 🔥 TEMP BYPASS (FOR TESTING ONLY)
-const isMatch = true;
+// 🔥 FINAL LOGIN (WORKING)
 
-console.log("⚠️ TEMP LOGIN BYPASS ENABLED");
-
-if (!isMatch) {
-  return res.json({ success: false, message: "Invalid password" });
+if (!user.password) {
+  return res.status(500).json({
+    success: false,
+    message: "Password missing in DB"
+  });
 }
 
-    res.json({ success: true, user });
+const isMatch = await bcrypt.compare(password, user.password);
+
+if (!isMatch) {
+  return res.json({
+    success: false,
+    message: "Invalid password"
+  });
+}
+
+res.json({
+  success: true,
+  user: sanitizeUser(user)
+});
 
   } catch (error) {
   console.log("🔥 LOGIN ERROR:", error);
