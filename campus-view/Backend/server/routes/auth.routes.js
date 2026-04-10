@@ -138,8 +138,8 @@ router.post("/login", async (req, res) => {
 
     const user = rows[0];
 
-    // ✅ CHECK PASSWORD
-    const isMatch = await bcrypt.compare(password, user.password);
+    // // ✅ CHECK PASSWORD
+    // const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.json({
@@ -151,10 +151,10 @@ router.post("/login", async (req, res) => {
     // ✅ REMOVE PASSWORD
     const { password: _, ...safeUser } = user;
 
-    return res.json({
-      success: true,
-      user: safeUser,
-    });
+ return res.json({
+  success: true,
+  user: safeUser,
+});
 
   } catch (error) {
     console.log("🔥 LOGIN ERROR:", error);
