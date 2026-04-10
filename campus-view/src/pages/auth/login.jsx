@@ -18,11 +18,11 @@ const goToHome = () => {
 
   const navigate = useNavigate();
 
-const [formData, setFormData] = useState({
-  name: "",
-  role: "student",
-  password: "",
-});
+  const [formData, setFormData] = useState({
+    name: "",
+    role: "student",
+    password: "",
+  });
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -59,7 +59,7 @@ const [formData, setFormData] = useState({
       // ✅ SHOW LOADING POPUP
       showLoading("Logging in...");
 
-      const response = await fetch("https://campus-view.onrender.com/api/login", {
+      const response = await fetch("http://localhost:5000/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -74,10 +74,7 @@ const [formData, setFormData] = useState({
       if (response.ok && data.success) {
 
         // 🔥 STORE TOKEN
-     // ✅ NEW
-if (data.token) {
-  localStorage.setItem("token", data.token);
-}
+        localStorage.setItem("token", data.token);
 
         // 🔥 NORMALIZED USER OBJECT (VERY IMPORTANT)
         const userData = {
@@ -125,17 +122,18 @@ if (data.token) {
 
         <form onSubmit={handleSubmit}>
 
-     
-{/* ✅ NEW */}
-<label>Name</label>
-<input
-  type="text"
-  name="name"
-  placeholder="Enter Enrollment Number"
-  value={formData.enrollment}
-  onChange={handleChange}
-  required
-/>
+          {/* Name */}
+          <div className="input-group">
+            <label>Name</label>
+            <input
+              type="text"
+              name="name"
+              placeholder="Enter Name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
           {/* Role */}
           <div className="input-group">

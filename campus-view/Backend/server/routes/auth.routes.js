@@ -26,6 +26,66 @@ const getTableByRole = (role) => {
   return null;
 };
 
+const getLoginFieldsByRole = (role) => {
+  if (role === "student") {
+    return `
+      id,
+      name,
+      role,
+      year,
+      department,
+      batch,
+      tg_name,
+      enrollment,
+      profile_image,
+      gatepass_available,
+      password
+    `;
+  }
+
+  if (
+    role === "faculty" ||
+    role === "faculty_class_teacher" ||
+    role === "faculty_teacher_guardian" ||
+    role === "hod_faculty"
+  ) {
+    return `
+      id,
+      name,
+      role,
+      year,
+      department,
+      batch,
+      profile_image,
+      gatepass_available,
+      password
+    `;
+  }
+
+  if (role === "hod") {
+    return `
+      id,
+      name,
+      role,
+      department,
+      profile_image,
+      password
+    `;
+  }
+
+  if (role === "principal") {
+    return `
+      id,
+      name,
+      role,
+      profile_image,
+      password
+    `;
+  }
+
+  return "*";
+};
+
 const sanitizeUser = (user) => {
   const { password, ...safeUser } = user;
   return safeUser;
@@ -37,20 +97,7 @@ router.post("/login", async (req, res) => {
   try {
     const { name, password, role } = req.body;
 
-    // ✅ VALIDATION
-    if (!name || !password || !role) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing login fields",
-      });
-    }
-
-    let table = "";
-
-    if (role === "student") table = "students";
-    else if (role && role.includes("faculty")) table = "faculty";
-    else if (role === "hod") table = "hods";
-    else if (role === "principal") table = "principals";
+    const table = getTableByRole(role);
 
     if (!table) {
       return res.status(400).json({
@@ -59,56 +106,62 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    console.log("LOGIN INPUT:", { name, role });
+    const fields = getLoginFieldsByRole(role);
 
-    // ✅ NAME BASED LOGIN
-    const query = `SELECT * FROM ${table} WHERE name = ?`;
-    const [rows] = await db.query(query, [name]);
+    const [results] = await db.query(
+      `SELECT ${fields} FROM ${table} WHERE name = ? AND role = ?`,
+      [name, role]
+    );
 
-    if (rows.length === 0) {
-      return res.json({
+    if (results.length === 0) {
+      return res.status(401).json({
         success: false,
         message: "User not found",
       });
     }
 
-    const user = rows[0];
+    const user = results[0];
 
-    console.log("Entered password:", password);
-    console.log("DB password:", user.password);
-
-    if (!user.password) {
-      return res.status(500).json({
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(401).json({
         success: false,
-        message: "Password missing in DB",
+        message: "Wrong password",
       });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const token = jwt.sign(
+      { id: user.id, role: user.role, table },
+      "campusview_secret",
+      { expiresIn: "1d" }
+    );
 
-    if (!isMatch) {
-      return res.json({
-        success: false,
-        message: "Invalid password",
-      });
-    }
+ const safeUser = sanitizeUser(user);
 
-    return res.json({
-      success: true,
-      user: sanitizeUser(user),
-    });
+return res.json({
+  success: true,
+  token,
+  user: {
+    ...safeUser,
 
-  } catch (error) {
-    console.log("🔥 LOGIN ERROR:", error);
+    // 🔥 IMPORTANT FIX (ADD THESE)
+    userClass: safeUser.batch || "", 
+    userYear: safeUser.year || "",
+    userDepartment: safeUser.department || "",
 
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    // optional (already exists but safe)
+    enrollment: safeUser.enrollment || safeUser.enrollment_no || ""
   }
 });
 
-/* ================= PASSWORD VALIDATION ================= */
+  } catch (err) {
+    console.error("🔥 LOGIN ERROR:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+});
 
 const validatePassword = (password) => {
   if (!password) return "Password is required";
@@ -148,18 +201,18 @@ const validatePassword = (password) => {
   ];
 
   if (blockedPasswords.includes(password.toLowerCase())) {
-    return "This password is too common.";
+    return "This password is too common. Please choose a stronger password";
   }
 
   return null;
 };
-
 /* ================= REGISTER ================= */
 
 router.post("/register", async (req, res) => {
   console.log("🔥 REGISTER ROUTE HIT");
 
-  const {
+
+    const {
     name,
     role,
     year,
@@ -172,42 +225,49 @@ router.post("/register", async (req, res) => {
 
   const passwordError = validatePassword(password);
 
-  if (passwordError) {
+if (passwordError) {
+  return res.status(400).json({
+    success: false,
+    message: passwordError,
+  });
+}
+  
+
+  
+let profile_image = null;
+
+if (req.body.profile_image) {
+  const base64Data = req.body.profile_image;
+
+  const matches = base64Data.match(/^data:(image\/\w+);base64,(.+)$/);
+
+  if (!matches) {
     return res.status(400).json({
       success: false,
-      message: passwordError,
+      message: "Invalid image format",
     });
   }
 
-  let profile_image = null;
+  const ext = matches[1].split("/")[1]; // jpg/png
+  const buffer = Buffer.from(matches[2], "base64");
 
-  if (req.body.profile_image) {
-    const base64Data = req.body.profile_image;
-    const matches = base64Data.match(/^data:(image\/\w+);base64,(.+)$/);
+  // 🔥 folder by role
+  let folder = "students";
 
-    if (!matches) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid image format",
-      });
-    }
+  if (role.includes("faculty")) folder = "faculty";
+  else if (role === "hod") folder = "hods";
+  else if (role === "principal") folder = "principals";
 
-    const ext = matches[1].split("/")[1];
-    const buffer = Buffer.from(matches[2], "base64");
+  const fileName = Date.now() + "." + ext;
 
-    let folder = "students";
+  const filePath = `uploads/${folder}/${fileName}`;
 
-    if (role.includes("faculty")) folder = "faculty";
-    else if (role === "hod") folder = "hods";
-    else if (role === "principal") folder = "principals";
+  fs.writeFileSync(filePath, buffer);
 
-    const fileName = Date.now() + "." + ext;
-    const filePath = `uploads/${folder}/${fileName}`;
+  profile_image = `${folder}/${fileName}`;
+}
 
-    fs.writeFileSync(filePath, buffer);
 
-    profile_image = `${folder}/${fileName}`;
-  }
 
   try {
     const table = getTableByRole(role);
@@ -234,46 +294,67 @@ router.post("/register", async (req, res) => {
         });
       }
 
-      await db.query(
-        `INSERT INTO students 
-        (name, role, year, department, batch, tg_name, enrollment, password, profile_image)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [name, role, year, department, batch, tg_name, enrollment, hashedPassword, profile_image]
-      );
+      const sql = `
+        INSERT INTO students
+        (name, role, year, department, batch, tg_name, enrollment, password, profile_image, gatepass_available)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `;
+await db.query(
+  `INSERT INTO students 
+  (name, role, year, department, batch, tg_name, enrollment, password, profile_image)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  [name, role, year, department, batch, tg_name, enrollment, hashedPassword, profile_image]
+);
+    } else if (
+      role === "faculty" ||
+      role === "faculty_class_teacher" ||
+      role === "faculty_teacher_guardian" ||
+      role === "hod_faculty"
+    ) {
+      const sql = `
+        INSERT INTO faculty
+        (name, role, year, department, batch, password, profile_image, gatepass_available)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `;
 
-    } else if (role.includes("faculty")) {
-
-      await db.query(
-        `INSERT INTO faculty
-        (name, role, year, department, batch, password, profile_image)
-        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [name, role, year, department, batch, hashedPassword, profile_image]
-      );
-
+     await db.query(
+  `INSERT INTO faculty
+  (name, role, year, department, batch, password, profile_image)
+  VALUES (?, ?, ?, ?, ?, ?, ?)`,
+  [name, role, year, department, batch, hashedPassword, profile_image]
+);
     } else if (role === "hod") {
-
-      await db.query(
-        `INSERT INTO hods
+      const sql = `
+        INSERT INTO hods
         (name, role, department, password, profile_image)
-        VALUES (?, ?, ?, ?, ?)`,
-        [name, role, department, hashedPassword, profile_image]
-      );
+        VALUES (?, ?, ?, ?, ?)
+      `;
 
+ await db.query(
+  `INSERT INTO hods
+  (name, role, department, password, profile_image)
+  VALUES (?, ?, ?, ?, ?)`,
+  [name, role, department, hashedPassword, profile_image]
+);
     } else if (role === "principal") {
-
-      await db.query(
-        `INSERT INTO principals
+      const sql = `
+        INSERT INTO principals
         (name, role, password, profile_image)
-        VALUES (?, ?, ?, ?)`,
-        [name, role, hashedPassword, profile_image]
-      );
+        VALUES (?, ?, ?, ?)
+      `;
+
+await db.query(
+  `INSERT INTO principals
+  (name, role, password, profile_image)
+  VALUES (?, ?, ?, ?)`,
+  [name, role, hashedPassword, profile_image]
+);
     }
 
     return res.status(201).json({
       success: true,
       message: "Registration Successful",
     });
-
   } catch (err) {
     console.log("REGISTER ERROR:", err);
 
