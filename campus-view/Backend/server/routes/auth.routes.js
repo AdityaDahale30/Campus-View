@@ -99,7 +99,6 @@ router.post("/login", async (req, res) => {
 
     let table = "";
 
-    // 🔥 SELECT TABLE BASED ON ROLE
     if (role === "student") table = "students";
     else if (role.includes("faculty")) table = "faculty";
     else if (role === "hod") table = "hods";
@@ -109,20 +108,19 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid role" });
     }
 
-    // 🔥 QUERY USER
- // 🔥 QUERY USER (FIXED ROLE-WISE)
-let query = "";
-let values = [];
+    // ✅ 👉 REPLACE HERE
+    let query = "";
+    let values = [];
 
-if (role === "student") {
-  query = "SELECT * FROM students WHERE enrollment = ?";
-  values = [enrollment];
-} else {
-  query = `SELECT * FROM ${table} WHERE id = ?`;
-  values = [enrollment];
-}
+    if (role === "student") {
+      query = "SELECT * FROM students WHERE enrollment = ?";
+      values = [enrollment];
+    } else {
+      query = `SELECT * FROM ${table} WHERE id = ?`;
+      values = [enrollment];
+    }
 
-const [rows] = await db.query(query, values);
+    const [rows] = await db.query(query, values);
 
     if (rows.length === 0) {
       return res.json({ success: false, message: "User not found" });
@@ -130,27 +128,16 @@ const [rows] = await db.query(query, values);
 
     const user = rows[0];
 
-    // ⚠️ VERY IMPORTANT CHECK
-    if (!user.password) {
-      return res.status(500).json({
-        success: false,
-        message: "Password missing in DB"
-      });
-    }
-
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.json({ success: false, message: "Invalid password" });
     }
 
-    res.json({
-      success: true,
-      user
-    });
+    res.json({ success: true, user });
 
   } catch (error) {
-    console.log("🔥 LOGIN ERROR:", error); // 👈 CHECK THIS IN RENDER LOGS
+    console.log("🔥 LOGIN ERROR:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
