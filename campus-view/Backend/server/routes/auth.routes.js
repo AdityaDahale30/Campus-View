@@ -95,6 +95,7 @@ const sanitizeUser = (user) => {
 
 router.post("/login", async (req, res) => {
   try {
+    
     const { enrollment, password, role } = req.body;
 
     let table = "";
@@ -128,7 +129,14 @@ router.post("/login", async (req, res) => {
 
     const user = rows[0];
 
-    const isMatch = await bcrypt.compare(password, user.password);
+  // 🔥 DEBUG START
+console.log("Entered password:", password);
+console.log("DB password:", user.password);
+// 🔥 DEBUG END
+
+const isMatch = await bcrypt.compare(password, user.password);
+
+console.log("Match result:", isMatch);
 
     if (!isMatch) {
       return res.json({ success: false, message: "Invalid password" });
