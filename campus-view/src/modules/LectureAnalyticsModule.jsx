@@ -12,7 +12,7 @@ import {
   Legend,
 } from "chart.js";
 
-axios.defaults.baseURL = "http://localhost:5000";
+axios.defaults.baseURL = "https://campus-view.onrender.com";
 
 ChartJS.register(
   CategoryScale,

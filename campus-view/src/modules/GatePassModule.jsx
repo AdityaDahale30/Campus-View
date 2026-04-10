@@ -49,7 +49,7 @@ const [showHistory, setShowHistory] = useState(false);
 
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/faculty-availability/${user.id}`
+        `https://campus-view.onrender.com/api/faculty-availability/${user.id}`
       );
       setAvailability(Number(res.data.faculty.gatepass_available));
     } catch (err) {
@@ -64,7 +64,7 @@ const [showHistory, setShowHistory] = useState(false);
       setAvailabilityLoading(true);
 
       const res = await axios.put(
-        `http://localhost:5000/api/faculty-availability/${user.id}`,
+        `https://campus-view.onrender.com/api/faculty-availability/${user.id}`,
         { gatepass_available: value }
       );
 
@@ -83,7 +83,7 @@ const [showHistory, setShowHistory] = useState(false);
 
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/student-approver/${user.id}`
+        `https://campus-view.onrender.com/student-approver/${user.id}`
       );
       setStudentApprover(res.data);
     } catch (err) {
@@ -96,7 +96,7 @@ const fetchFacultyHOD = async () => {
 
   try {
     const res = await axios.get(
-      `http://localhost:5000/api/faculty-hod/${user.id}`
+      `https://campus-view.onrender.com/api/faculty-hod/${user.id}`
     );
     setFacultyHOD(res.data);
   } catch (err) {
@@ -111,7 +111,7 @@ const fetchFacultyHOD = async () => {
 
       if (mode === "student" || mode === "faculty") {
         res = await axios.get(
-          `http://localhost:5000/api/my-gate_pass/${user.id}`
+          `https://campus-view.onrender.com/api/my-gate_pass/${user.id}`
         );
       }
 
@@ -121,13 +121,13 @@ const fetchFacultyHOD = async () => {
           role === "faculty_teacher_guardian"
         ) {
           res = await axios.get(
-            `http://localhost:5000/api/tg-requests/${user.id}`
+            `https://campus-view.onrender.com/api/tg-requests/${user.id}`
           );
         }
 
         if (role === "hod" || role === "hod_faculty") {
           res = await axios.get(
-            `http://localhost:5000/api/hod-requests/${user.id}`
+            `https://campus-view.onrender.com/api/hod-requests/${user.id}`
           );
         }
       }
@@ -141,7 +141,7 @@ const fetchFacultyHOD = async () => {
   const fetchSingleRequest = async () => {
   try {
     const res = await axios.get(
-      `http://localhost:5000/api/gatepass/${id}`
+      `https://campus-view.onrender.com/api/gatepass/${id}`
     );
 
     setRequests([res.data]); // 👈 wrap in array (VERY IMPORTANT)
@@ -216,7 +216,7 @@ if (selectedDateTime < now) {
     // ✅ LOADING
     showLoading("Submitting request...");
 
-    const res = await axios.post("http://localhost:5000/api/gate_pass", {
+    const res = await axios.post("https://campus-view.onrender.com/api/gate_pass", {
       student_name: formData.name,
       enrollment_no: mode === "student" ? formData.enrollment : "",
       class_name: formData.className,
@@ -262,7 +262,7 @@ const updateStatus = async (id, status) => {
 
     showLoading(`${status}ing...`);
 
-    await axios.put(`http://localhost:5000/api/update-status/${id}`, {
+    await axios.put(`https://campus-view.onrender.com/api/update-status/${id}`, {
       status,
     });
 
@@ -283,7 +283,7 @@ const updateStatus = async (id, status) => {
   try {
     showLoading(`${status}ing...`);
 
-    await axios.put(`http://localhost:5000/api/update-status/${id}`, {
+    await axios.put(`https://campus-view.onrender.com/api/update-status/${id}`, {
       status,
     });
 
@@ -328,7 +328,7 @@ const updateStatus = async (id, status) => {
       {req.status === "Approved" && (
         <div className="gp-qr-box">
     <QRCodeCanvas
-  value={`http://localhost:5173/gatepass/${req.id}`}
+  value={`https://campus-view.onrender.com/gatepass/${req.id}`}
 />
         </div>
       )}

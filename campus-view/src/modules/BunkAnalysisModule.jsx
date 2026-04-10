@@ -39,11 +39,11 @@ function BunkAnalysisModule() {
       const studentId = user.id;
 
       const weeklyRes = await axios.get(
-        `http://localhost:5000/api/bunk/student/${studentId}/weekly`
+        `https://campus-view.onrender.com/api/bunk/student/${studentId}/weekly`
       );
 
       const recordsRes = await axios.get(
-        `http://localhost:5000/api/bunk/student/${studentId}`
+        `https://campus-view.onrender.com/api/bunk/student/${studentId}`
       );
 
       setWeeklyData(weeklyRes.data.weeklyData || []);

@@ -153,7 +153,7 @@ const handleRegister = async (e) => {
       imageBase64 = await toBase64(formData.profile_image);
     }
 
-    const response = await fetch("http://localhost:5000/api/register", {
+    const response = await fetch("https://campus-view.onrender.com/api/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

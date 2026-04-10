@@ -12,7 +12,7 @@ function AlertModule() {
   const markAsRead = async (id) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/alerts/mark-read/${id}/${user.role}`
+        `https://campus-view.onrender.com/api/alerts/mark-read/${id}/${user.role}`
       );
 
       fetchAlerts();
@@ -26,7 +26,7 @@ function AlertModule() {
       console.log("USER:", user);
 
       const res = await axios.get(
-        `http://localhost:5000/api/alerts/${user.id}/${user.role}`
+        `https://campus-view.onrender.com/api/alerts/${user.id}/${user.role}`
       );
 
       console.log("API RESPONSE:", res.data);
@@ -54,7 +54,7 @@ function AlertModule() {
     const fetchAlertCount = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/alerts/unread/${user.id}/${user.role}`
+          `https://campus-view.onrender.com/api/alerts/unread/${user.id}/${user.role}`
         );
 
         console.log("🔔 ALERT COUNT:", res.data);

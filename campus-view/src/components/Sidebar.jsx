@@ -30,7 +30,7 @@ function Sidebar({ role, activeMenu, setActiveMenu, setChatCount, setAlertCount 
         const userRole = user?.role;
 
         const res = await axios.get(
-          `http://localhost:5000/api/chat/unread/${userId}/${userRole}`
+          `https://campus-view.onrender.com/api/chat/unread/${userId}/${userRole}`
         );
 
         let totalUnread = 0;
@@ -59,7 +59,7 @@ function Sidebar({ role, activeMenu, setActiveMenu, setChatCount, setAlertCount 
 const fetchAlertCount = async () => {
   try {
     const res = await axios.get(
-      `http://localhost:5000/api/alerts/unread/${user.id}/${user.role}`
+      `https://campus-view.onrender.com/api/alerts/unread/${user.id}/${user.role}`
     );
 
     console.log("🔔 ALERT COUNT:", res.data);
@@ -94,7 +94,7 @@ useEffect(() => {
 
     const fetchBadge = () => {
       axios
-        .get(`http://localhost:5000/api/student-badge/${enrollmentNo}`)
+        .get(`https://campus-view.onrender.com/api/student-badge/${enrollmentNo}`)
         .then((res) => {
           if (res.data.success) {
             setBadgeData(res.data);
@@ -227,7 +227,7 @@ useEffect(() => {
           <img
             src={
               user?.profile_image
-                ? `http://localhost:5000/uploads/${user.profile_image}`
+                ? `https://campus-view.onrender.com/uploads/${user.profile_image}`
                 : "/default-avatar.png"
             }
             className="topbar-profile"

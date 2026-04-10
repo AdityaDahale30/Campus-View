@@ -102,7 +102,7 @@ function CameraOverlay({ onClose, onStudentDetected }) {
     try {
       const image = captureFrame();
 
-      const res = await axios.post("http://localhost:5000/auto-face", {
+      const res = await axios.post("https://campus-view.onrender.com/auto-face", {
         image,
       });
 
@@ -143,7 +143,7 @@ function CameraOverlay({ onClose, onStudentDetected }) {
 
       for (const stu of detectedStudents) {
         try {
-          await axios.post("http://localhost:5000/api/alerts/create-alert", {
+          await axios.post("https://campus-view.onrender.com/api/alerts/create-alert", {
             student_id: stu.id,
             message: "🚨 Student roaming detected in campus",
           });

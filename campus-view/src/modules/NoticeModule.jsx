@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { showSuccess, showError, showConfirm, showLoading, closeAlert } from "../utils/alerts";
 
-axios.defaults.baseURL = "http://localhost:5000";
+axios.defaults.baseURL = "https://campus-view.onrender.com";
 
 function NoticeModule({ role, userDepartment, userYear }) {
   const userData = localStorage.getItem("user");

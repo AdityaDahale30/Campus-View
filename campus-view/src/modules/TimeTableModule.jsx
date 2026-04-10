@@ -77,7 +77,7 @@ const updateLecture = async () => {
   try {
     showLoading("Updating lecture...");
 
-    await fetch(`http://localhost:5000/api/timetable/update/${editingLecture.id}`, {
+    await fetch(`https://campus-view.onrender.com/api/timetable/update/${editingLecture.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ subject: newSubject, teacher: newTeacher })
@@ -107,7 +107,7 @@ const undoLecture = async (id) => {
   try {
     showLoading("Reverting...");
 
-    await fetch(`http://localhost:5000/api/timetable/undo/${id}`, {
+    await fetch(`https://campus-view.onrender.com/api/timetable/undo/${id}`, {
       method: "PUT"
     });
 
@@ -125,7 +125,7 @@ const undoLecture = async (id) => {
 
 /* =================================================== FETCH ========================================================================== */
   const fetchTimetable = () => {
-    fetch("http://localhost:5000/api/timetable")
+    fetch("https://campus-view.onrender.com/api/timetable")
       .then((res) => res.json())
       .then((data) => {
 
@@ -230,7 +230,7 @@ const markLecture = async (status, lecture) => {
   try {
     console.log("CLICKED:", status, lecture);
 
-    const res = await fetch("http://localhost:5000/api/timetable/mark", {
+    const res = await fetch("https://campus-view.onrender.com/api/timetable/mark", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

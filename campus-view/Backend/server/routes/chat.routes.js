@@ -411,7 +411,7 @@ router.get("/incoming/:userId/:role", async (req, res) => {
 result.push({
   ...sender,
   profile_image: sender.profile_image
-    ? `http://localhost:5000/uploads/${sender.profile_image}`
+    ? `https://campus-view.onrender.com/uploads/${sender.profile_image}`
     : null,
   online: status.online,
   last_seen: status.last_seen,
@@ -457,7 +457,7 @@ router.post("/send-file", async (req, res) => {
     // 🔥 SAVE FILE
     fs.writeFileSync(filePath, base64Data, "base64");
 
-    const fileUrl = `http://localhost:5000/uploads/chat/${fileName}`;
+    const fileUrl = `https://campus-view.onrender.com/uploads/chat/${fileName}`;
 
     const [result] = await db.query(
       `INSERT INTO messages 

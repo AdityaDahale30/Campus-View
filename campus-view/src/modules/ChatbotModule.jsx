@@ -36,7 +36,7 @@ function ChatbotModule() {
     if (!senderId || !senderRole) return;
 
     const interval = setInterval(() => {
-      axios.post("http://localhost:5000/api/chat/online", {
+      axios.post("https://campus-view.onrender.com/api/chat/online", {
         userId: senderId,
         role: senderRole,
       });
@@ -52,7 +52,7 @@ function ChatbotModule() {
     const loadUsers = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/chat/allowed-users/${senderId}/${senderRole}`
+          `https://campus-view.onrender.com/api/chat/allowed-users/${senderId}/${senderRole}`
         );
         setUsers(res.data || []);
       } catch (err) {
@@ -74,7 +74,7 @@ function ChatbotModule() {
     const loadIncoming = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/chat/incoming/${senderId}/${senderRole}`
+          `https://campus-view.onrender.com/api/chat/incoming/${senderId}/${senderRole}`
         );
         setIncomingUsers(res.data || []);
       } catch (err) {
@@ -95,7 +95,7 @@ function ChatbotModule() {
     const loadUnread = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/chat/unread/${senderId}/${senderRole}`
+          `https://campus-view.onrender.com/api/chat/unread/${senderId}/${senderRole}`
         );
 
         const counts = {};
@@ -122,17 +122,17 @@ function ChatbotModule() {
     const loadMessages = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/chat/messages/${senderId}/${senderRole}/${selectedUser.id}/${selectedUser.role}`
+          `https://campus-view.onrender.com/api/chat/messages/${senderId}/${senderRole}/${selectedUser.id}/${selectedUser.role}`
         );
 
         setMessages(res.data || []);
 
         await axios.put(
-          `http://localhost:5000/api/chat/seen/${selectedUser.id}/${selectedUser.role}/${senderId}/${senderRole}`
+          `https://campus-view.onrender.com/api/chat/seen/${selectedUser.id}/${selectedUser.role}/${senderId}/${senderRole}`
         );
 
         const unread = await axios.get(
-          `http://localhost:5000/api/chat/unread/${senderId}/${senderRole}`
+          `https://campus-view.onrender.com/api/chat/unread/${senderId}/${senderRole}`
         );
 
         const counts = {};
@@ -156,7 +156,7 @@ function ChatbotModule() {
     const interval = setInterval(async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/chat/messages/${senderId}/${senderRole}/${selectedUser.id}/${selectedUser.role}`
+          `https://campus-view.onrender.com/api/chat/messages/${senderId}/${senderRole}/${selectedUser.id}/${selectedUser.role}`
         );
 
         if (JSON.stringify(res.data) !== JSON.stringify(messages)) {
@@ -188,7 +188,7 @@ function ChatbotModule() {
         else if (file.type.startsWith("video")) type = "video";
         else if (file.type.startsWith("audio")) type = "audio";
 
-        await axios.post("http://localhost:5000/api/chat/send-file", {
+        await axios.post("https://campus-view.onrender.com/api/chat/send-file", {
           sender_id: senderId,
           sender_role: senderRole,
           receiver_id: selectedUser.id,
@@ -200,7 +200,7 @@ function ChatbotModule() {
 
         setFile(null);
       } else if (text.trim()) {
-        await axios.post(`http://localhost:5000/api/chat/send`, {
+        await axios.post(`https://campus-view.onrender.com/api/chat/send`, {
           sender_id: senderId,
           sender_role: senderRole,
           receiver_id: selectedUser.id,
@@ -212,7 +212,7 @@ function ChatbotModule() {
       }
 
       const res = await axios.get(
-        `http://localhost:5000/api/chat/messages/${senderId}/${senderRole}/${selectedUser.id}/${selectedUser.role}`
+        `https://campus-view.onrender.com/api/chat/messages/${senderId}/${senderRole}/${selectedUser.id}/${selectedUser.role}`
       );
 
       setMessages(res.data || []);
@@ -250,7 +250,7 @@ function ChatbotModule() {
       // ✅ LOADING
       showLoading("Deleting...");
 
-      await axios.delete(`http://localhost:5000/api/chat/delete/${id}`);
+      await axios.delete(`https://campus-view.onrender.com/api/chat/delete/${id}`);
 
       closeAlert();
 
