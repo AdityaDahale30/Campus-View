@@ -8,6 +8,7 @@
 
 body {
   overflow-x: hidden;
+  padding-bottom: 60px;
 }
 
 /* ================= HERO ================= */
@@ -159,23 +160,124 @@ body {
 }
 
 /* ================= MOBILE ================= */
-@media (max-width:768px){
 
-  .nav-links{
-    gap:10px;
-    font-size:12px;
+/* ================= MOBILE COMPACT UI ================= */
+
+@media (max-width: 768px) {
+
+  /* NAVBAR */
+  .navbar {
+    padding: 6px 12px;
   }
 
-  .left-section h1{
-    font-size:32px;
+  .nav-logo {
+    height: 28px;
   }
 
-  .stats{
-    flex-wrap:wrap;
-    justify-content:center;
+  .logo-text {
+    font-size: 16px;
   }
 
-  .footer-container{
-    grid-template-columns:1fr;
+  .nav-links {
+    gap: 8px;
   }
+
+  .nav-links span {
+    font-size: 10px;
+  }
+
+  /* HERO */
+  .hero-content {
+    padding: 90px 15px 40px;
+  }
+
+  .left-section h1 {
+    font-size: 26px;
+  }
+
+  .left-section p {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  /* BUTTONS */
+  .buttons {
+    margin-top: 15px;
+    gap: 8px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 8px 18px;
+    font-size: 12px;
+  }
+
+  /* STATS */
+  .stats {
+    margin-top: 20px;
+    gap: 15px;
+    justify-content: center;
+  }
+
+  .stats div {
+    min-width: 90px;
+  }
+
+  .stats h3 {
+    font-size: 16px;
+  }
+
+  .stats p {
+    font-size: 11px;
+  }
+
+  /* PAGE SECTIONS */
+  .page-container {
+    padding: 40px 15px;
+  }
+
+  .page-title {
+    font-size: 22px;
+  }
+
+  /* CARDS */
+  .feature-card,
+  .flow-card {
+    padding: 15px;
+  }
+
+  .feature-card h2 {
+    font-size: 16px;
+  }
+
+  .feature-card li {
+    font-size: 12px;
+  }
+
+  /* FOOTER */
+  .footer-section {
+    padding: 40px 15px;
+  }
+
+  .footer-container {
+    gap: 20px;
+  }
+
+  .footer-section h3 {
+    font-size: 14px;
+  }
+
+  .footer-section p {
+    font-size: 12px;
+  }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    padding: 8px 5px;
+  }
+
+  .bottom-nav span {
+    font-size: 11px;
+  }
+
 }
