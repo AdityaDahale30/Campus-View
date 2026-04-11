@@ -1,270 +1,10 @@
-/* =========================================================
-   🔥 FINAL RESPONSIVE CSS (STABLE VERSION)
-========================================================= */
+/* ================= MOBILE RESPONSIVE (EXACT UI PRESERVED) ================= */
 
-/* ================= RESET ================= */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  overflow-x: hidden;
-}
-
-/* ================= HERO WRAPPER ================= */
-.hero-wrapper {
-  height: 100vh;
-  position: relative;
-}
-
-.hero-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-/* ================= VIDEO ================= */
-.bg-video {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: -2;
-}
-
-.hero-container::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  z-index: -1;
-}
-
-/* ================= NAVBAR ================= */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  padding: 10px 40px;
-  height: 60px;
-
-  backdrop-filter: blur(12px);
-  background: rgba(0, 0, 0, 0.4);
-
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 1000;
-}
-
-/* LOGO FIX */
-.logo {
-  font-size: 24px;
-  font-weight: bold;
-  color: #00f7ff;
-}
-
-/* NAV LINKS */
-.nav-links {
-  display: flex;
-  gap: 25px;
-}
-
-.nav-links span {
-  color: white;
-  cursor: pointer;
-  position: relative;
-  font-size: 14px;
-}
-
-.nav-links span::after {
-  content: "";
-  position: absolute;
-  width: 0%;
-  height: 1px;
-  background: white;
-  bottom: -3px;
-  left: 0;
-  transition: 0.3s;
-}
-
-.nav-links span:hover::after {
-  width: 100%;
-}
-
-/* ================= HERO CONTENT ================= */
-.hero-content {
-  max-width: 1100px;
-  margin: auto;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 120px 20px 60px;
-  gap: 40px;
-}
-
-/* LEFT */
-.left-section {
-  flex: 1;
-}
-
-.left-section h1 {
-  font-size: 48px;
-  line-height: 1.2;
-}
-
-.left-section span {
-  color: #00f7ff;
-}
-
-.left-section p {
-  margin-top: 20px;
-  font-size: 16px;
-  color: #f0f0f0;
-}
-
-/* BUTTONS */
-.buttons {
-  margin-top: 25px;
-  display: flex;
-  gap: 15px;
-}
-
-.btn-primary,
-.btn-secondary {
-  padding: 12px 26px;
-  border-radius: 30px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.btn-primary {
-  background: #00f7ff;
-  border: none;
-  font-weight: bold;
-}
-
-.btn-secondary {
-  border: 2px solid white;
-  background: transparent;
-  color: white;
-}
-
-/* STATS */
-.stats {
-  margin-top: 40px;
-  display: flex;
-  gap: 40px;
-  flex-wrap: wrap;
-  color: white;
-}
-
-.stats h3 {
-  font-size: 26px;
-}
-
-/* RIGHT IMAGE */
-.right-section img {
-  width: 100%;
-  max-width: 380px;
-}
-
-/* ================= PAGE SECTIONS ================= */
-.page-container {
-  background: #fff;
-  padding: 80px 20px;
-}
-
-.page-title {
-  text-align: center;
-  margin-bottom: 30px;
-  font-size: 28px;
-}
-
-/* GRID */
-.feature-grid,
-.flow-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-}
-
-/* CARDS */
-.feature-card,
-.flow-card {
-  background: white;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-  transition: 0.3s;
-}
-
-.feature-card:hover,
-.flow-card:hover {
-  transform: translateY(-5px);
-}
-
-/* ================= FOOTER SECTION ================= */
-.footer-section {
-  background: #165a8a;
-  color: white;
-  min-height: 100vh;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.footer-container {
-  width: 100%;
-  max-width: 1200px;
-
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 40px;
-}
-
-.footer-section a {
-  color: white;
-  text-decoration: none;
-}
-
-/* ================= BOTTOM NAV ================= */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-
-  display: flex;
-  justify-content: space-around;
-  padding: 10px;
-
-  backdrop-filter: blur(10px);
-  background: rgba(0,0,0,0.5);
-
-  z-index: 1000;
-}
-
-.bottom-nav span {
-  color: white;
-  font-size: 13px;
-}
-
-/* ================= MOBILE RESPONSIVE ================= */
 @media (max-width: 768px) {
 
+  /* NAVBAR */
   .navbar {
-    padding: 10px 15px;
+    padding: 10px 20px;
   }
 
   .logo {
@@ -272,37 +12,77 @@ body {
   }
 
   .nav-links {
-    display: none; /* 🔥 hide desktop nav */
+    gap: 15px;
   }
 
-  .hero-content {
-    flex-direction: column;
-    text-align: center;
-    padding: 100px 15px 40px;
-  }
-
-  .left-section h1 {
-    font-size: 34px;
-  }
-
-  .buttons {
-    justify-content: center;
-  }
-
-  .stats {
-    justify-content: center;
-  }
-
-  .right-section {
-    margin-top: 20px;
-  }
-
-  .footer-container {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
-
-  .bottom-nav {
+  .nav-links span {
     font-size: 12px;
   }
+
+  /* HERO CONTENT */
+  .hero-content {
+    padding: 120px 20px 60px;
+    gap: 20px;
+  }
+
+  /* TEXT SCALE DOWN (IMPORTANT) */
+  .left-section h1 {
+    font-size: 32px;
+  }
+
+  .left-section p {
+    font-size: 14px;
+  }
+
+  /* BUTTONS */
+  .buttons {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+
+  /* STATS */
+  .stats {
+    margin-top: 30px;
+    gap: 20px;
+    justify-content: space-between;
+  }
+
+  .stats h3 {
+    font-size: 20px;
+  }
+
+  .stats p {
+    font-size: 12px;
+  }
+
+  /* RIGHT IMAGE */
+  .right-section img {
+    max-width: 250px;
+  }
+
+  /* VIDEO FIX */
+  .bg-video {
+    object-fit: cover;
+  }
+
+  /* FOOTER NAV FIX */
+  .bottom-nav {
+    gap: 10px;
+    font-size: 11px;
+    padding: 8px;
+  }
+
+  /* FOOTER SECTION */
+  .footer-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    text-align: center;
+  }
+
 }
