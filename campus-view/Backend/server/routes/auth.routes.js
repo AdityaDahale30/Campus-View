@@ -31,44 +31,57 @@ const sanitizeUser = (user) => {
 };
 
 /* ================= LOGIN ================= */
-
 router.post("/login", async (req, res) => {
   try {
     console.log("🔥 LOGIN BODY:", req.body);
 
-    // ✅ SAFE extraction (NO CRASH)
-    const name = req.body?.name || "";
-    const role = req.body?.role || "";
+    const name = req.body?.name;
+    const role = req.body?.role;
 
     if (!name || !role) {
       return res.status(400).json({
         success: false,
-        message: "Name or role missing",
+        message: "Missing name or role",
       });
     }
 
-    let table = "";
+    let table;
 
-    if (role === "student") table = "students";
-    else if (role.includes("faculty")) table = "faculty";
-    else if (role === "hod") table = "hods";
-    else if (role === "principal") table = "principals";
-
-    if (!table) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid role",
-      });
+    switch (role) {
+      case "student":
+        table = "students";
+        break;
+      case "faculty":
+      case "faculty_class_teacher":
+      case "faculty_teacher_guardian":
+        table = "faculty";
+        break;
+      case "hod":
+        table = "hods";
+        break;
+      case "principal":
+        table = "principals";
+        break;
+      default:
+        return res.status(400).json({
+          success: false,
+          message: "Invalid role",
+        });
     }
 
-    console.log("🔍 Searching in table:", table);
+    console.log("👉 Using table:", table);
 
-    const [rows] = await db.query(
-      `SELECT * FROM ${table} WHERE LOWER(name) LIKE LOWER(?) LIMIT 1`,
-      [`%${name}%`]
-    );
+    const query = `SELECT * FROM ${table} WHERE name LIKE ? LIMIT 1`;
+    const values = [`%${name}%`];
 
-    console.log("📦 DB RESULT:", rows);
+    console.log("👉 QUERY:", query);
+    console.log("👉 VALUES:", values);
+
+    const result = await db.query(query, values);
+
+    console.log("👉 RAW RESULT:", result);
+
+    const rows = result[0];
 
     if (!rows || rows.length === 0) {
       return res.json({
@@ -81,15 +94,15 @@ router.post("/login", async (req, res) => {
 
     return res.json({
       success: true,
-      user: sanitizeUser(user),
+      user,
     });
 
   } catch (error) {
-    console.log("🔥 LOGIN ERROR FULL:", error); // VERY IMPORTANT
+    console.log("🔥 LOGIN ERROR FULL:", error); // THIS WILL SHOW REAL ERROR
 
     return res.status(500).json({
       success: false,
-      message: error.message || "Server crashed",
+      message: error.message,
     });
   }
 });
