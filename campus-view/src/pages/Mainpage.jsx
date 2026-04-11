@@ -20,21 +20,18 @@ const Mainpage = () => {
       <div id="home" className="hero-wrapper">
         <div className="hero-container">
 
-          {/* ✅ VIDEO FIX (IMPORTANT) */}
+          {/* 🎥 VIDEO */}
           <video autoPlay loop muted playsInline className="bg-video">
             <source src="/shreeyash2.mp4" type="video/mp4" />
           </video>
 
           {/* ================= NAVBAR ================= */}
           <nav className="navbar">
-            
-            {/* LEFT */}
             <div className="nav-left">
               <img src="/logo.jpg" alt="Campus Logo" className="nav-logo" />
               <span className="logo-text">Campus View</span>
             </div>
 
-            {/* RIGHT */}
             <div className="nav-links">
               <span onClick={() => scrollToSection("home")}>Home</span>
               <span onClick={() => scrollToSection("features")}>Features</span>
@@ -152,38 +149,6 @@ const Mainpage = () => {
 
         <div className="highlight-box">
           🚀 One platform for monitoring, communication, and control.
-        </div>
-      </div>
-
-      {/* ================= HOW ================= */}
-      <div id="how" className="page-container">
-        <h1 className="page-title">How Campus View Works</h1>
-
-        <div className="flow-grid">
-          <div className="flow-card">
-            <div className="icon">📷</div>
-            <h3>Face Detection</h3>
-          </div>
-
-          <div className="flow-card">
-            <div className="icon">🚨</div>
-            <h3>Instant Alert</h3>
-          </div>
-
-          <div className="flow-card">
-            <div className="icon">👨‍🏫</div>
-            <h3>Faculty Action</h3>
-          </div>
-
-          <div className="flow-card">
-            <div className="icon">🏫</div>
-            <h3>Escalation</h3>
-          </div>
-
-          <div className="flow-card">
-            <div className="icon">🧑‍💼</div>
-            <h3>Principal Monitoring</h3>
-          </div>
         </div>
       </div>
 

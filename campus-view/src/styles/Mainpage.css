@@ -1,88 +1,181 @@
-/* ================= MOBILE RESPONSIVE (EXACT UI PRESERVED) ================= */
+/* ================= RESET ================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
 
-@media (max-width: 768px) {
+body {
+  overflow-x: hidden;
+}
 
-  /* NAVBAR */
-  .navbar {
-    padding: 10px 20px;
+/* ================= HERO ================= */
+.hero-wrapper {
+  height: 100vh;
+  position: relative;
+}
+
+.hero-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* VIDEO */
+.bg-video {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+
+.hero-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: -1;
+}
+
+/* ================= NAVBAR ================= */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 10px 40px;
+  position: fixed;
+  width: 100%;
+  z-index: 1000;
+
+  backdrop-filter: blur(10px);
+  background: rgba(0,0,0,0.4);
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-logo {
+  height: 40px;
+}
+
+.logo-text {
+  color: #00f7ff;
+  font-weight: bold;
+  font-size: 22px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 25px;
+}
+
+.nav-links span {
+  color: white;
+  cursor: pointer;
+}
+
+/* ================= HERO CONTENT ================= */
+.hero-content {
+  max-width: 1100px;
+  margin: auto;
+  padding: 120px 20px;
+}
+
+.left-section h1 {
+  font-size: 52px;
+  color: #00f7ff;
+}
+
+.left-section p {
+  color: white;
+  margin-top: 15px;
+}
+
+.buttons {
+  margin-top: 20px;
+  display: flex;
+  gap: 15px;
+}
+
+.btn-primary {
+  background: #00f7ff;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 30px;
+}
+
+.btn-secondary {
+  border: 2px solid white;
+  color: white;
+  background: transparent;
+  padding: 12px 25px;
+  border-radius: 30px;
+}
+
+/* STATS */
+.stats {
+  margin-top: 30px;
+  display: flex;
+  gap: 40px;
+  color: white;
+}
+
+/* ================= GRID ================= */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+  gap: 20px;
+}
+
+/* ================= FOOTER ================= */
+.footer-section {
+  background: #165a8a;
+  color: white;
+  padding: 60px 20px;
+}
+
+.footer-container {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 30px;
+}
+
+/* ================= BOTTOM NAV ================= */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+}
+
+/* ================= MOBILE ================= */
+@media (max-width:768px){
+
+  .nav-links{
+    gap:10px;
+    font-size:12px;
   }
 
-  .logo {
-    font-size: 20px;
+  .left-section h1{
+    font-size:32px;
   }
 
-  .nav-links {
-    gap: 15px;
+  .stats{
+    flex-wrap:wrap;
+    justify-content:center;
   }
 
-  .nav-links span {
-    font-size: 12px;
+  .footer-container{
+    grid-template-columns:1fr;
   }
-
-  /* HERO CONTENT */
-  .hero-content {
-    padding: 120px 20px 60px;
-    gap: 20px;
-  }
-
-  /* TEXT SCALE DOWN (IMPORTANT) */
-  .left-section h1 {
-    font-size: 32px;
-  }
-
-  .left-section p {
-    font-size: 14px;
-  }
-
-  /* BUTTONS */
-  .buttons {
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .btn-primary,
-  .btn-secondary {
-    padding: 10px 20px;
-    font-size: 13px;
-  }
-
-  /* STATS */
-  .stats {
-    margin-top: 30px;
-    gap: 20px;
-    justify-content: space-between;
-  }
-
-  .stats h3 {
-    font-size: 20px;
-  }
-
-  .stats p {
-    font-size: 12px;
-  }
-
-  /* RIGHT IMAGE */
-  .right-section img {
-    max-width: 250px;
-  }
-
-  /* VIDEO FIX */
-  .bg-video {
-    object-fit: cover;
-  }
-
-  /* FOOTER NAV FIX */
-  .bottom-nav {
-    gap: 10px;
-    font-size: 11px;
-    padding: 8px;
-  }
-
-  /* FOOTER SECTION */
-  .footer-container {
-    grid-template-columns: 1fr;
-    gap: 20px;
-    text-align: center;
-  }
-
 }
