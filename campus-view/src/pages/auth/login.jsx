@@ -118,7 +118,7 @@ const [formData, setFormData] = useState({
   return (
     <div className="login-container">
       <div className="login-card">
-        <h2 className="title">Campus View</h2>
+        <h2 className="title">Campus</h2>
 
         <form onSubmit={handleSubmit}>
 
