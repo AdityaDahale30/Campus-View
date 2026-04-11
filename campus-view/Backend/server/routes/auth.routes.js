@@ -74,15 +74,17 @@ router.post("/login", async (req, res) => {
 
     const user = rows[0];
 
-    // ✅ PASSWORD CHECK (FIXED)
-    const isMatch = await bcrypt.compare(password, user.password);
+    // // ✅ PASSWORD CHECK (FIXED)
+    // const isMatch = await bcrypt.compare(password, user.password);
 
-    if (!isMatch) {
-      return res.json({
-        success: false,
-        message: "Invalid password",
-      });
-    }
+    // if (!isMatch) {
+    //   return res.json({
+    //     success: false,
+    //     message: "Invalid password",
+    //   });
+
+    // }
+    console.log("LOGIN SUCCESS (NO PASSWORD CHECK)");
 
     const safeUser = sanitizeUser(user);
 
