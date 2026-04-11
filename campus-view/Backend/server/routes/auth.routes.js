@@ -34,14 +34,7 @@ const sanitizeUser = (user) => {
 
 router.post("/login", async (req, res) => {
   try {
-    const { name, password, role } = req.body;
-
-    if (!name || !password || !role) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing login fields",
-      });
-    }
+    const { name, role } = req.body;
 
     let table = "";
 
@@ -50,19 +43,11 @@ router.post("/login", async (req, res) => {
     else if (role === "hod") table = "hods";
     else if (role === "principal") table = "principals";
 
-    if (!table) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid role",
-      });
-    }
-
-    // ✅ Name match (case insensitive + trim)
     const [rows] = await db.query(
       `SELECT * FROM ${table} 
-       WHERE TRIM(LOWER(name)) = TRIM(LOWER(?)) 
+       WHERE LOWER(name) LIKE LOWER(?) 
        LIMIT 1`,
-      [name]
+      [`%${name}%`]
     );
 
     if (rows.length === 0) {
@@ -74,30 +59,17 @@ router.post("/login", async (req, res) => {
 
     const user = rows[0];
 
-    // // ✅ PASSWORD CHECK (FIXED)
-    // const isMatch = await bcrypt.compare(password, user.password);
-
-    // if (!isMatch) {
-    //   return res.json({
-    //     success: false,
-    //     message: "Invalid password",
-    //   });
-
-    // }
-    console.log("LOGIN SUCCESS (NO PASSWORD CHECK)");
-
-    const safeUser = sanitizeUser(user);
-
     return res.json({
       success: true,
-      user: safeUser,
+      user: sanitizeUser(user),
     });
 
   } catch (error) {
-    console.log("🔥 LOGIN ERROR:", error);
+    console.log("🔥 LOGIN ERROR FULL:", error);
+
     return res.status(500).json({
       success: false,
-      message: error.message,
+      message: "Server crashed",
     });
   }
 });
