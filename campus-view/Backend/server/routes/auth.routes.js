@@ -34,7 +34,18 @@ const sanitizeUser = (user) => {
 
 router.post("/login", async (req, res) => {
   try {
-    const { name, role } = req.body;
+    console.log("🔥 LOGIN BODY:", req.body);
+
+    // ✅ SAFE extraction (NO CRASH)
+    const name = req.body?.name || "";
+    const role = req.body?.role || "";
+
+    if (!name || !role) {
+      return res.status(400).json({
+        success: false,
+        message: "Name or role missing",
+      });
+    }
 
     let table = "";
 
@@ -43,14 +54,23 @@ router.post("/login", async (req, res) => {
     else if (role === "hod") table = "hods";
     else if (role === "principal") table = "principals";
 
+    if (!table) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid role",
+      });
+    }
+
+    console.log("🔍 Searching in table:", table);
+
     const [rows] = await db.query(
-      `SELECT * FROM ${table} 
-       WHERE LOWER(name) LIKE LOWER(?) 
-       LIMIT 1`,
+      `SELECT * FROM ${table} WHERE LOWER(name) LIKE LOWER(?) LIMIT 1`,
       [`%${name}%`]
     );
 
-    if (rows.length === 0) {
+    console.log("📦 DB RESULT:", rows);
+
+    if (!rows || rows.length === 0) {
       return res.json({
         success: false,
         message: "User not found",
@@ -65,11 +85,11 @@ router.post("/login", async (req, res) => {
     });
 
   } catch (error) {
-    console.log("🔥 LOGIN ERROR FULL:", error);
+    console.log("🔥 LOGIN ERROR FULL:", error); // VERY IMPORTANT
 
     return res.status(500).json({
       success: false,
-      message: "Server crashed",
+      message: error.message || "Server crashed",
     });
   }
 });
