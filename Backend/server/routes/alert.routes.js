@@ -68,6 +68,47 @@ router.post("/create-alert", async (req, res) => {
   }
 });
 
+
+export async function createAlertDirect(student_id, message) {
+  try {
+    const [studentRows] = await db.query(
+      "SELECT name FROM students WHERE id = ?",
+      [student_id]
+    );
+
+    const studentName = studentRows[0]?.name || "Unknown";
+
+    const [result] = await db.query(
+      `
+      INSERT INTO alerts 
+      (student_id, student_name, faculty_name, faculty_role, title, message, subject, lecture_number, lecture_date, detected_at, camera_location, is_read, faculty_read, tg_read, hod_read)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, 0, 0, 0, 0)
+      `,
+      [
+        student_id,
+        studentName,
+        "Auto System",
+        "system",
+        "Roaming Alert",
+        message,
+        "-",
+        0,
+        new Date().toISOString().slice(0, 10),
+        "unknown_location",
+      ]
+    );
+
+    const alertId = result.insertId;
+
+    console.log("✅ Alert inserted (direct), ID:", alertId);
+
+    await processAlert(alertId);
+
+  } catch (err) {
+    console.log("❌ Direct alert error:", err);
+  }
+}
+
 /* =========================================================
    📱 SMS FUNCTION (SIMULATION)
 ========================================================= */
@@ -89,7 +130,7 @@ async function sendSMS(phone, message) {
 /* =========================================================
    🔥 MAIN PROCESS FUNCTION
 ========================================================= */
-async function processAlert(alertId) {
+export async function processAlert(alertId) {
   try {
     console.log("🔥 processAlert CALLED");
     console.log("🚀 Processing alert:", alertId);

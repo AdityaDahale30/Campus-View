@@ -21,6 +21,7 @@ import lectureAnalyticsRoutes from "./routes/lectureAnalytics.routes.js";
 import departmentReportRoutes from "./routes/departmentReport.routes.js";
 import * as faceapi from "face-api.js";
 import canvas from "canvas";
+import { createAlertDirect } from "./routes/alert.routes.js";
 
 
 /* ========================================== FIX __dirname (ES MODULE FIX) ========================================================== */
@@ -324,17 +325,23 @@ app.post("/auto-face", async (req, res) => {
           );
 
           if (existing.length === 0) {
-            await db.query(
-              `
+            await db.query(`
     INSERT INTO roaming_logs (student_id, camera_location)
     VALUES (?, ?)
-    `,
-              [bestMatch.id, actualCameraLocation]
-            );
+  `, [bestMatch.id, actualCameraLocation]);
+
             await new Promise(resolve => setTimeout(resolve, 500));
 
             console.log("✅ Roaming log inserted:", bestMatch.id);
+
+            // ✅ ALERT TRIGGER (ONLY THIS)
+            await createAlertDirect(
+              bestMatch.id,
+              "🚨 Student roaming detected in campus"
+            );
           }
+
+
 
 
           /* =========================================================== BUNK EVALUATION =============================================================== */
