@@ -23,6 +23,9 @@ import * as faceapi from "face-api.js";
 import canvas from "canvas";
 import { createAlertDirect } from "./routes/alert.routes.js";
 
+/* ================= TEST MODE ================= */
+const TEST_MODE = true;
+
 
 /* ========================================== FIX __dirname (ES MODULE FIX) ========================================================== */
 
@@ -324,7 +327,7 @@ app.post("/auto-face", async (req, res) => {
             [bestMatch.id]
           );
 
-          if (existing.length === 0) {
+          if (existing.length === 0 || TEST_MODE) {
             await db.query(`
     INSERT INTO roaming_logs (student_id, camera_location)
     VALUES (?, ?)
@@ -356,9 +359,9 @@ app.post("/auto-face", async (req, res) => {
 
             console.log("🕒 Current Time:", currentTime, "Day:", currentDay);
 
-            if (currentTime < "08:30" || currentTime > "15:30") {
-              console.log("⛔ Outside college hours → skipping bunk");
-            } else {
+          if (!TEST_MODE && (currentTime < "08:30" || currentTime > "15:30")) {
+  console.log("⛔ Outside college hours → skipping bunk");
+} else {
               const studentDept = normalizeText(bestMatch.department);
               const studentYear = normalizeYear(bestMatch.year);
 
@@ -385,9 +388,23 @@ app.post("/auto-face", async (req, res) => {
 
               console.log("📘 Current Lecture:", currentLecture);
 
-              if (!currentLecture) {
-                console.log("❌ No active lecture → bunk skipped");
-              } else {
+            if (!currentLecture) {
+  console.log("❌ No active lecture");
+
+  if (TEST_MODE) {
+    console.log("🧪 TEST MODE → creating fake lecture");
+
+    currentLecture = {
+      id: 1,
+      subject: "Demo Subject",
+      teacher: "Demo Faculty",
+      lecture_number: 1,
+      time: "00:00-23:59"
+    };
+  } else {
+    console.log("⛔ Skipping bunk");
+  }
+} else {
                 const isRecess =
                   currentLecture.time === "10:30-11:15" ||
                   currentLecture.time === "1:15-1:30";
@@ -423,7 +440,9 @@ app.post("/auto-face", async (req, res) => {
 
                   const detections = rows[0]?.detections || 0;
 
-                  const status = detections > 0 ? "bunk" : "present";
+                  const status = TEST_MODE
+  ? (Math.random() > 0.5 ? "bunk" : "present")
+  : (detections > 0 ? "bunk" : "present");
 
                   console.log("🧠 Detections:", detections, "Status:", status);
 
