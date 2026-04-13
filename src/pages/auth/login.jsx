@@ -166,7 +166,7 @@ function Login() {
 
           {/* Name */}
           <div className="input-group">
-            <label>Na</label>
+            <label>Name</label>
 
             <div className="search-box">
               <input
