@@ -68,47 +68,6 @@ router.post("/create-alert", async (req, res) => {
   }
 });
 
-
-export async function createAlertDirect(student_id, message) {
-  try {
-    const [studentRows] = await db.query(
-      "SELECT name FROM students WHERE id = ?",
-      [student_id]
-    );
-
-    const studentName = studentRows[0]?.name || "Unknown";
-
-    const [result] = await db.query(
-      `
-      INSERT INTO alerts 
-      (student_id, student_name, faculty_name, faculty_role, title, message, subject, lecture_number, lecture_date, detected_at, camera_location, is_read, faculty_read, tg_read, hod_read)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, 0, 0, 0, 0)
-      `,
-      [
-        student_id,
-        studentName,
-        "Auto System",
-        "system",
-        "Roaming Alert",
-        message,
-        "-",
-        0,
-        new Date().toISOString().slice(0, 10),
-        "unknown_location",
-      ]
-    );
-
-    const alertId = result.insertId;
-
-    console.log("✅ Alert inserted (direct), ID:", alertId);
-
-    await processAlert(alertId);
-
-  } catch (err) {
-    console.log("❌ Direct alert error:", err);
-  }
-}
-
 /* =========================================================
    📱 SMS FUNCTION (SIMULATION)
 ========================================================= */
@@ -130,7 +89,7 @@ async function sendSMS(phone, message) {
 /* =========================================================
    🔥 MAIN PROCESS FUNCTION
 ========================================================= */
-export async function processAlert(alertId) {
+async function processAlert(alertId) {
   try {
     console.log("🔥 processAlert CALLED");
     console.log("🚀 Processing alert:", alertId);
@@ -229,40 +188,20 @@ export async function processAlert(alertId) {
 
     if (!currentLecture) currentLecture = ttRows[0];
 
- let faculty = null;
+    const [facultyRows] = await db.query(
+      `
+      SELECT * FROM faculty 
+      WHERE LOWER(REPLACE(name, '.', '')) LIKE CONCAT('%', LOWER(REPLACE(?, '.', '')), '%')
+      LIMIT 1
+      `,
+      [currentLecture.teacher]
+    );
 
-// 🔥 PRIORITY: CLASS TEACHER
-if (student.class_teacher_faculty_id) {
-  const [ctFaculty] = await db.query(
-    "SELECT * FROM faculty WHERE id = ?",
-    [student.class_teacher_faculty_id]
-  );
-
-  faculty = ctFaculty[0];
-}
-
-// 🔥 FALLBACK: TIMETABLE TEACHER
-if (!faculty) {
-  const [facultyRows] = await db.query(
-    `
-    SELECT * FROM faculty 
-    WHERE LOWER(REPLACE(name, '.', '')) LIKE CONCAT('%', LOWER(REPLACE(?, '.', '')), '%')
-    LIMIT 1
-    `,
-    [currentLecture.teacher]
-  );
-
-  faculty = facultyRows[0];
-}
-
-// 🔥 FINAL FALLBACK
-if (!faculty) {
-  faculty = {
-    id: null,
-    name: "Unknown",
-    phone: null
-  };
-}
+    let faculty = facultyRows[0] || {
+      id: null,
+      name: "Unknown",
+      phone: null
+    };
 
     const tg_id = student.tg_faculty_id || faculty?.id || 1;
     const tg_name = student.tg_name || "Unknown";
@@ -330,11 +269,7 @@ if (!faculty) {
     console.log("📩 Alert message:", alert.message);
 
 
-  if (!faculty?.phone) {
-  console.log("❌ Faculty phone missing!");
-}
-
-const facultyPhone = faculty?.phone || "9999999999";
+    const facultyPhone = faculty?.phone || "9999999999";
 
     const smsText = `🚨 Alert: ${student.name} is roaming during ${currentLecture.subject}`;
     await sendSMS(facultyPhone, smsText);
