@@ -21,7 +21,6 @@ import lectureAnalyticsRoutes from "./routes/lectureAnalytics.routes.js";
 import departmentReportRoutes from "./routes/departmentReport.routes.js";
 import * as faceapi from "face-api.js";
 import canvas from "canvas";
-import { createAlertDirect } from "./routes/alert.routes.js";
 
 /* ================= TEST MODE ================= */
 const TEST_MODE = true;
@@ -307,7 +306,7 @@ app.post("/auto-face", async (req, res) => {
       }
 
       if (bestMatch) {
-        // ✅ ADD TO RESULT ARRAY
+      
         detectedStudents.push({
           id: bestMatch.id,
           enrollment: bestMatch.enrollment,
@@ -316,7 +315,7 @@ app.post("/auto-face", async (req, res) => {
           department: bestMatch.department,
         });
 
-        /* ================= ROAMING LOG ================= */
+ /* =============================================== ROAMING LOG ============================================================================== */
         try {
           const [existing] = await db.query(
             `
@@ -327,27 +326,20 @@ app.post("/auto-face", async (req, res) => {
             [bestMatch.id]
           );
 
-          if (existing.length === 0 || TEST_MODE) {
+          if (existing.length === 0) {
             await db.query(`
-    INSERT INTO roaming_logs (student_id, camera_location)
-    VALUES (?, ?)
-  `, [bestMatch.id, actualCameraLocation]);
+                            INSERT INTO roaming_logs (student_id, camera_location)
+                            VALUES (?, ?)
+                          `, [bestMatch.id, actualCameraLocation]);
 
             await new Promise(resolve => setTimeout(resolve, 500));
 
             console.log("✅ Roaming log inserted:", bestMatch.id);
 
-            // ✅ ALERT TRIGGER (ONLY THIS)
-            await createAlertDirect(
-              bestMatch.id,
-              "🚨 Student roaming detected in campus"
-            );
+
           }
-
-
-
-
-          /* =========================================================== BUNK EVALUATION =============================================================== */
+          
+/* =========================================================== BUNK EVALUATION =============================================================== */
           try {
             const now = new Date();
 
@@ -386,85 +378,85 @@ app.post("/auto-face", async (req, res) => {
                 }
               }
 
-             console.log("📘 Current Lecture:", currentLecture);
+              console.log("📘 Current Lecture:", currentLecture);
 
-if (!currentLecture) {
-  console.log("❌ No active lecture");
+              if (!currentLecture) {
+                console.log("❌ No active lecture");
 
-  if (TEST_MODE) {
-    console.log("🧪 TEST MODE → creating fake lecture");
+                if (TEST_MODE) {
+                  console.log("🧪 TEST MODE → creating fake lecture");
 
-    currentLecture = {
-      id: 1,
-      subject: "Demo Subject",
-      teacher: "Demo Faculty",
-      lecture_number: 1,
-      time: "00:00-23:59"
-    };
-  } else {
-    console.log("⛔ Skipping bunk");
-    return;
-  }
-}
+                  currentLecture = {
+                    id: 1,
+                    subject: "Demo Subject",
+                    teacher: "Demo Faculty",
+                    lecture_number: 1,
+                    time: "00:00-23:59"
+                  };
+                } else {
+                  console.log("⛔ Skipping bunk");
+                  return;
+                }
+              }
 
-// ✅ NOW THIS WILL ALWAYS RUN
-const isRecess =
-  currentLecture.time === "10:30-11:15" ||
-  currentLecture.time === "1:15-1:30";
+              // ✅ NOW THIS WILL ALWAYS RUN
+              const isRecess =
+                currentLecture.time === "10:30-11:15" ||
+                currentLecture.time === "1:15-1:30";
 
-if (
-  currentLecture.is_break === 1 ||
-  currentLecture.subject?.trim().toLowerCase() === "off" ||
-  isRecess
-) {
-  console.log("⛔ Recess / OFF lecture → skipped");
-} else {
-  const today = new Date().toISOString().split("T")[0];
+              if (
+                currentLecture.is_break === 1 ||
+                currentLecture.subject?.trim().toLowerCase() === "off" ||
+                isRecess
+              ) {
+                console.log("⛔ Recess / OFF lecture → skipped");
+              } else {
+                const today = new Date().toISOString().split("T")[0];
 
-  const [startRaw, endRaw] = currentLecture.time.split("-");
+                const [startRaw, endRaw] = currentLecture.time.split("-");
 
-  const formatTime = (t) => {
-    let [h, m] = t.trim().split(":");
-    return `${today} ${h.padStart(2, "0")}:${m.padStart(2, "0")}:00`;
-  };
+                const formatTime = (t) => {
+                  let [h, m] = t.trim().split(":");
+                  return `${today} ${h.padStart(2, "0")}:${m.padStart(2, "0")}:00`;
+                };
 
-  const lecture_start = formatTime(startRaw);
-  const lecture_end = formatTime(endRaw);
+                const lecture_start = formatTime(startRaw);
+                const lecture_end = formatTime(endRaw);
 
-  const [rows] = await db.query(
-    `SELECT COUNT(*) AS detections
+                const [rows] = await db.query(
+                  `SELECT COUNT(*) AS detections
      FROM roaming_logs
      WHERE student_id = ?
      AND detected_at BETWEEN ? AND ?`,
-    [bestMatch.id, lecture_start, lecture_end]
-  );
+                  [bestMatch.id, lecture_start, lecture_end]
+                );
 
-  const detections = rows[0]?.detections || 0;
+                const detections = rows[0]?.detections || 0;
 
-  const status = TEST_MODE
-    ? (Math.random() > 0.5 ? "bunk" : "present")
-    : (detections > 0 ? "bunk" : "present");
+                const status = TEST_MODE
+                  ? (Math.random() > 0.5 ? "bunk" : "present")
+                  : (detections > 0 ? "bunk" : "present");
 
-  console.log("🧠 Detections:", detections, "Status:", status);
+                console.log("🧠 Detections:", detections, "Status:", status);
 
-  await db.query(
-    `INSERT INTO bunk_records
+                await db.query(
+                  `INSERT INTO bunk_records
      (student_id, timetable_id, lecture_date, day_name, lecture_number, subject, teacher, status)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
      ON DUPLICATE KEY UPDATE status = VALUES(status)`,
-    [
-      bestMatch.id,
-      currentLecture.id,
-      today,
-      currentDay,
-      currentLecture.lecture_number || 1,
-      currentLecture.subject,
-      currentLecture.teacher || "",
-      status,
-    ]
-  );
+                  [
+                    bestMatch.id,
+                    currentLecture.id,
+                    today,
+                    currentDay,
+                    currentLecture.lecture_number || 1,
+                    currentLecture.subject,
+                    currentLecture.teacher || "",
+                    status,
+                  ]
+                );
 
-  console.log("✅ BUNK RECORD INSERTED:", bestMatch.id);
+                console.log("✅ BUNK RECORD INSERTED:", bestMatch.id);
 
               }
             }
