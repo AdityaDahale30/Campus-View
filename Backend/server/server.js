@@ -124,7 +124,7 @@ function isCurrentTimeInSlot(slot, nowTime) {
   const toMinutes = (time) => {
     let [h, m] = time.trim().split(":").map(Number);
 
-   
+
     if (h < 8) h += 12;
 
     return h * 60 + m;
@@ -253,7 +253,7 @@ app.post("/auto-face", async (req, res) => {
       .withFaceLandmarks()
       .withFaceDescriptors();
 
-/* ========================================================= NO FACE ========================================================================= */
+    /* ========================================================= NO FACE ========================================================================= */
 
     if (!detections || detections.length === 0) {
       return res.json({
@@ -267,7 +267,7 @@ app.post("/auto-face", async (req, res) => {
     console.log("DETECTIONS LENGTH:", detections.length);
     console.log("FIRST DESCRIPTOR LENGTH:", detections[0]?.descriptor?.length);
 
-/* ==================================================== FETCH STUDENTS ONCE ================================================================= */
+    /* ==================================================== FETCH STUDENTS ONCE ================================================================= */
 
     const [students] = await db.query(
       "SELECT * FROM students WHERE face_descriptor IS NOT NULL"
@@ -275,7 +275,7 @@ app.post("/auto-face", async (req, res) => {
 
     const detectedStudents = [];
 
-/* ====================================================== LOOP ALL FACES ===================================================================== */
+    /* ====================================================== LOOP ALL FACES ===================================================================== */
 
     for (let face of detections) {
       if (!face.descriptor) continue;
@@ -307,7 +307,7 @@ app.post("/auto-face", async (req, res) => {
       }
 
       if (bestMatch) {
-      
+
         detectedStudents.push({
           id: bestMatch.id,
           enrollment: bestMatch.enrollment,
@@ -316,7 +316,7 @@ app.post("/auto-face", async (req, res) => {
           department: bestMatch.department,
         });
 
- /* =============================================== ROAMING LOG ============================================================================== */
+        /* ============================================================ ROAMING LOG =============================================================== */
         try {
           const [existing] = await db.query(
             `
@@ -340,7 +340,7 @@ app.post("/auto-face", async (req, res) => {
 
           }
 
-/* =========================================================== BUNK EVALUATION =============================================================== */
+          /* =========================================================== BUNK EVALUATION =============================================================== */
 
           try {
             const now = new Date();
@@ -352,6 +352,7 @@ app.post("/auto-face", async (req, res) => {
             const currentDay = now.toLocaleDateString("en-US", { weekday: "long" });
 
             console.log("🕒 Current Time:", currentTime, "Day:", currentDay);
+
 
             if (!TEST_MODE && (currentTime < "08:30" || currentTime > "15:30")) {
               console.log("⛔ Outside college hours → skipping bunk");
@@ -383,23 +384,12 @@ app.post("/auto-face", async (req, res) => {
               console.log("📘 Current Lecture:", currentLecture);
 
               if (!currentLecture) {
-                console.log("❌ No active lecture");
-
-                if (TEST_MODE) {
-                  console.log("🧪 TEST MODE → creating fake lecture");
-
-                  currentLecture = {
-                    id: 1,
-                    subject: "Demo Subject",
-                    teacher: "Demo Faculty",
-                    lecture_number: 1,
-                    time: "00:00-23:59"
-                  };
-                } else {
-                  console.log("⛔ Skipping bunk");
-                  return;
-                }
+                console.log("❌ No active lecture → bunk skipped");
+              } else {
+                console.log("⛔ Skipping bunk");
+                return; 
               }
+
 
               //  NOW THIS WILL ALWAYS RUN
               const isRecess =
@@ -435,9 +425,7 @@ app.post("/auto-face", async (req, res) => {
 
                 const detections = rows[0]?.detections || 0;
 
-                const status = TEST_MODE
-                  ? (Math.random() > 0.5 ? "bunk" : "present")
-                  : (detections > 0 ? "bunk" : "present");
+                const status = detections > 0 ? "bunk" : "present";
 
                 console.log("🧠 Detections:", detections, "Status:", status);
 
@@ -472,7 +460,8 @@ app.post("/auto-face", async (req, res) => {
       }
     }
 
-    /* ================= FINAL RESPONSE ================= */
+    /* ========================================================== FINAL RESPONSE ============================================================== */
+
     if (detectedStudents.length === 0) {
       return res.json({
         success: false,

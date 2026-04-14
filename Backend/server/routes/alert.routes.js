@@ -285,7 +285,7 @@ async function processAlert(alertId) {
 router.get("/:userId/:role", async (req, res) => {
   try {
    const { userId, role } = req.params;
-const { date, status, time } = req.query; // 🔥 ADD THIS
+const { date, status, time } = req.query; 
 
     let query = `
       SELECT a.*, s.year
@@ -321,7 +321,7 @@ const { date, status, time } = req.query; // 🔥 ADD THIS
   values.push(time);
 }
 
-    // 🔥 STATUS FILTER
+    
     if (status === "unread") {
       if (role === "faculty" || role === "faculty_class_teacher") {
         query += ` AND a.faculty_read = 0`;
