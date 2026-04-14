@@ -7,9 +7,9 @@ const router = express.Router();
 
 
 router.post("/mark", async (req, res) => {
-  console.log("🔥 API HIT");
-  console.log("BODY:", req.body);
 
+  console.log("🔥 API HIT");
+console.log("BODY:", req.body);
   const {
     timetable_id,
     faculty_id,
@@ -17,6 +17,7 @@ router.post("/mark", async (req, res) => {
     department,
     year,
     class_name,
+    subject,
     lecture_date,
     day_name,
     lecture_number,
@@ -27,63 +28,51 @@ router.post("/mark", async (req, res) => {
   } = req.body;
 
   try {
-    // ✅ SAFE DATE CONVERSION (IMPORTANT FIX)
-   // ✅ SAFE DATE (NO TIMEZONE CONVERSION)
-const safeDate = lecture_date ? lecture_date.toString().slice(0, 10) : null;
-
-    // ❌ FIXED VALIDATION (use lecture_date OR safeDate)
-    if (!timetable_id || !faculty_id || !safeDate || !status) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing fields"
-      });
+    if (!timetable_id || !faculty_id || !lecture_date || !status) {
+      return res.status(400).json({ success: false, message: "Missing fields" });
     }
 
     console.log("CHECK DATA:", {
-      timetable_id,
-      faculty_id,
-      lecture_date: safeDate,
-      status
-    });
+  timetable_id,
+  faculty_id,
+  lecture_date,
+  status
+});
 
-    await db.query(
-      `INSERT INTO lecture_records
-      (timetable_id, faculty_id, faculty_name, department, year, class_name, subject, lecture_date, day_name, lecture_number, time_slot, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      ON DUPLICATE KEY UPDATE
-        faculty_id = VALUES(faculty_id),
-        faculty_name = VALUES(faculty_name),
-        department = VALUES(department),
-        year = VALUES(year),
-        class_name = VALUES(class_name),
-        subject = VALUES(subject),
-        day_name = VALUES(day_name),
-        lecture_number = VALUES(lecture_number),
-        time_slot = VALUES(time_slot),
-        status = VALUES(status)`,
-      [
-        timetable_id,
-        faculty_id,
-        faculty_name,
-        department,
-        year,
-        class_name,
-        req.body.subject,
-        safeDate,   // ✅ FIX HERE
-        day_name,
-        lecture_number,
-        time_slot,
-        status
-      ]
-    );
+await db.query(
+  `INSERT INTO lecture_records
+  (timetable_id, faculty_id, faculty_name, department, year, class_name, subject, lecture_date, day_name, lecture_number, time_slot, status)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  ON DUPLICATE KEY UPDATE
+    faculty_id = VALUES(faculty_id),
+    faculty_name = VALUES(faculty_name),
+    department = VALUES(department),
+    year = VALUES(year),
+    class_name = VALUES(class_name),
+    subject = VALUES(subject),
+    day_name = VALUES(day_name),
+    lecture_number = VALUES(lecture_number),
+    time_slot = VALUES(time_slot),
+    status = VALUES(status)`,
+  [
+    timetable_id,
+    faculty_id,
+    faculty_name,
+    department,
+    year,
+    class_name,
+    subject,
+    lecture_date,
+    day_name,
+    lecture_number,
+    time_slot,
+    status
+  ]
+);
 
-    res.json({
-      success: true,
-      message: "Lecture updated"
-    });
-
+    res.json({ success: true, message: "Lecture updated" });
   } catch (err) {
-    console.log("❌ MARK ERROR:", err);
+    console.log(err);
     res.status(500).json({ success: false });
   }
 });

@@ -1313,8 +1313,9 @@ ul li:hover {
 .notice-form-wrapper {
   width: 100%;
 
-  margin-top: 0;
+  margin-top: 0px;
 }
+
 
 /* FORM */
 .notice-module form {
@@ -2054,7 +2055,7 @@ ul li:hover {
 /* REQUEST LIST */
 .request-list {
   display: grid;
-  gap: 16px;
+  gap: 19px;
 
   /* 🔥 FIX: ensure full width */
   width: 100%;
@@ -2330,6 +2331,11 @@ ul li:hover {
   display: grid !important;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
+  margin-top: 20px;
+}
+
+.requests-title{
+  margin-left: 12px;
 }
 
 /* ================= SUMMARY ================= */
@@ -2571,7 +2577,7 @@ ul li:hover {
 
 /* ================= FACULTY SEARCH ================= */
 .chart-card input {
-  margin-bottom: 12px;
+  margin-bottom: -1px;
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 8px 12px;

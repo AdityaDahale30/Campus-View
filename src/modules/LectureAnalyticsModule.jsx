@@ -35,6 +35,10 @@ function LectureAnalyticsModule({ role, userDepartment }) {
   const [statusFilter, setStatusFilter] = useState("");
   const [facultyFilter, setFacultyFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
+  const formatDate = (date) => {
+  if (!date) return "";
+  return new Date(date).toLocaleDateString("en-CA");
+};
 
   const isFaculty =
     role === "faculty_class_teacher" || role === "faculty_teacher_guardian";
@@ -149,7 +153,7 @@ function LectureAnalyticsModule({ role, userDepartment }) {
     const rows = [
       ["Date", "Day", "Lecture", "Subject", "Teacher", "Status"],
       ...filteredRecords.map((r) => [
-        r.lecture_date?.slice(0, 10),
+        formatDate(r.lecture_date),
         r.day_name,
         r.lecture_number,
         r.subject,
@@ -157,6 +161,8 @@ function LectureAnalyticsModule({ role, userDepartment }) {
         r.status,
       ]),
     ];
+
+
 
     const csvContent = rows.map((row) => row.join(",")).join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -176,9 +182,9 @@ function LectureAnalyticsModule({ role, userDepartment }) {
       const facultyMatch = facultyFilter
         ? r.faculty_name === facultyFilter
         : true;
-      const dateMatch = dateFilter
-        ? r.lecture_date?.slice(0, 10) === dateFilter
-        : true;
+    const dateMatch = dateFilter
+  ? formatDate(r.lecture_date) === dateFilter
+  : true;
 
       return statusMatch && facultyMatch && dateMatch;
     });
@@ -610,7 +616,7 @@ const commonBarOptions = {
             <tbody>
               {filteredRecords.map((r) => (
                 <tr key={r.id} style={{ transition: "0.2s" }}>
-                  <td>{r.lecture_date?.slice(0, 10)}</td>
+                 <td>{formatDate(r.lecture_date)}</td>
                   <td>{r.day_name}</td>
                   <td>{r.lecture_number}</td>
                   <td>{r.subject}</td>
