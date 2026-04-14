@@ -22,10 +22,6 @@ import departmentReportRoutes from "./routes/departmentReport.routes.js";
 import * as faceapi from "face-api.js";
 import canvas from "canvas";
 
-/* ================= TEST MODE ================= */
-const TEST_MODE = true;
-
-
 /* ========================================== FIX __dirname (ES MODULE FIX) ========================================================== */
 
 const __filename = fileURLToPath(import.meta.url);
@@ -59,6 +55,7 @@ app.use("/api/lecture-analytics", lectureAnalyticsRoutes);
 app.use("/api/department-report", departmentReportRoutes);
 app.use("/api", authRoutes);
 app.use("/uploads", express.static("uploads"));
+
 /* =================================================== BASIC ROUTES =================================================================== */
 
 app.get("/", (req, res) => {
@@ -69,7 +66,7 @@ app.get("/test", (req, res) => {
   res.send("Server Working ✅");
 });
 
-/* ================================================ CREATE UPLOAD FOLDER ============================================================= */
+/* =================================================== CREATE UPLOAD FOLDER ============================================================= */
 
 const uploadDir = path.join(__dirname, "uploads");
 
@@ -87,7 +84,7 @@ subFolders.forEach((folder) => {
   }
 });
 
-/* ==================================================== FACE API SETUP ============================================================== */
+/* ====================================================== FACE API SETUP ============================================================== */
 
 const { Canvas, Image, ImageData } = canvas;
 faceapi.env.monkeyPatch({ Canvas, Image, ImageData });
@@ -127,7 +124,7 @@ function isCurrentTimeInSlot(slot, nowTime) {
   const toMinutes = (time) => {
     let [h, m] = time.trim().split(":").map(Number);
 
-    // 🔥 FIX: handle afternoon times like 1:15 → 13:15
+   
     if (h < 8) h += 12;
 
     return h * 60 + m;
@@ -140,7 +137,7 @@ function isCurrentTimeInSlot(slot, nowTime) {
   return now >= startTime && now <= endTime;
 }
 
-/* ==================================================== GENERATE DESCRIPTORS ========================================================== */
+/* ==================================================== GENERATE DESCRIPTORS =============================================================== */
 
 async function generateDescriptors() {
   console.log("🔥 Generating face descriptors...");
@@ -155,7 +152,7 @@ async function generateDescriptors() {
     try {
       const baseName = path.parse(student.profile_image).name;
 
-      // 🔥 SEARCH IN ALL FOLDERS
+      //  SEARCH IN ALL FOLDERS
       const folders = ["students", "faculty", "hods", "principals"];
 
       let imagePath = null;
@@ -172,7 +169,7 @@ async function generateDescriptors() {
         if (imagePath) break;
       }
 
-      // ❌ if not found skip
+      //  if not found skip
       if (!imagePath) {
         console.log("❌ Image not found for:", student.profile_image);
         continue;
@@ -196,16 +193,16 @@ async function generateDescriptors() {
         continue;
       }
 
-      // ✅ TAKE FIRST FACE
+      //  TAKE FIRST FACE
       const first = detections[0];
 
-      // ✅ CHECK DESCRIPTOR
+      //  CHECK DESCRIPTOR
       if (!first.descriptor) {
         console.log("❌ Descriptor missing:", imagePath);
         continue;
       }
 
-      // ✅ FINAL
+      //  FINAL
       const descriptor = Array.from(first.descriptor);
 
       await db.query(
@@ -223,7 +220,8 @@ async function generateDescriptors() {
   console.log("✅ Face Descriptor Generation Completed");
 }
 
-/* ======================================================== AUTO FACE ROUTE ===================================================================== */
+/* ======================================================== AUTO FACE ROUTE =================================================================== */
+
 app.post("/auto-face", async (req, res) => {
   try {
     console.log("🔥 /auto-face route called");
@@ -255,7 +253,8 @@ app.post("/auto-face", async (req, res) => {
       .withFaceLandmarks()
       .withFaceDescriptors();
 
-    /* ================= NO FACE ================= */
+/* ========================================================= NO FACE ========================================================================= */
+
     if (!detections || detections.length === 0) {
       return res.json({
         success: false,
@@ -268,14 +267,16 @@ app.post("/auto-face", async (req, res) => {
     console.log("DETECTIONS LENGTH:", detections.length);
     console.log("FIRST DESCRIPTOR LENGTH:", detections[0]?.descriptor?.length);
 
-    /* ================= FETCH STUDENTS ONCE ================= */
+/* ==================================================== FETCH STUDENTS ONCE ================================================================= */
+
     const [students] = await db.query(
       "SELECT * FROM students WHERE face_descriptor IS NOT NULL"
     );
 
     const detectedStudents = [];
 
-    /* ================= LOOP ALL FACES ================= */
+/* ====================================================== LOOP ALL FACES ===================================================================== */
+
     for (let face of detections) {
       if (!face.descriptor) continue;
 
@@ -338,8 +339,9 @@ app.post("/auto-face", async (req, res) => {
 
 
           }
-          
+
 /* =========================================================== BUNK EVALUATION =============================================================== */
+
           try {
             const now = new Date();
 
@@ -399,7 +401,7 @@ app.post("/auto-face", async (req, res) => {
                 }
               }
 
-              // ✅ NOW THIS WILL ALWAYS RUN
+              //  NOW THIS WILL ALWAYS RUN
               const isRecess =
                 currentLecture.time === "10:30-11:15" ||
                 currentLecture.time === "1:15-1:30";
