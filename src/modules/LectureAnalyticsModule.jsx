@@ -92,7 +92,13 @@ function LectureAnalyticsModule({ role, userDepartment }) {
       const res = await axios.get(`/api/lecture-analytics/department-summary`, {
         params: all ? {} : { department: userDepartment },
       });
-      setFacultyList(res.data.data || []);
+      const unique = Array.from(
+        new Map(
+          (res.data.data || []).map((f) => [f.faculty_name, f])
+        ).values()
+      );
+
+      setFacultyList(unique);
     } catch (err) {
       console.log("Department summary error:", err);
     }
@@ -143,7 +149,7 @@ function LectureAnalyticsModule({ role, userDepartment }) {
     const rows = [
       ["Date", "Day", "Lecture", "Subject", "Teacher", "Status"],
       ...filteredRecords.map((r) => [
-        new Date(r.lecture_date).toLocaleDateString(),
+        r.lecture_date?.slice(0, 10),
         r.day_name,
         r.lecture_number,
         r.subject,
@@ -171,7 +177,7 @@ function LectureAnalyticsModule({ role, userDepartment }) {
         ? r.faculty_name === facultyFilter
         : true;
       const dateMatch = dateFilter
-        ? new Date(r.lecture_date).toISOString().split("T")[0] === dateFilter
+        ? r.lecture_date?.slice(0, 10) === dateFilter
         : true;
 
       return statusMatch && facultyMatch && dateMatch;
@@ -194,20 +200,21 @@ function LectureAnalyticsModule({ role, userDepartment }) {
   const performance =
     totalLectures > 0 ? ((totalTaken / totalLectures) * 100).toFixed(1) : 0;
 
-  const weeklyChartData = {
-    labels: daysOrder,
-    datasets: [
-      {
-        label: "Lectures",
-        data: daysOrder.map((day) => {
-          const found = weeklyData.find((d) => d.day_name === day);
-          return found ? Number(found.count) : 0;
-        }),
-        backgroundColor: "#ff4d4f",
-        borderRadius: 6,
-      },
-    ],
-  };
+const weeklyChartData = {
+  labels: daysOrder,
+  datasets: [
+    {
+      label: "Lectures",
+      data: daysOrder.map((day) => {
+        const found = weeklyData.find((d) => d.day_name === day);
+        return found ? Number(found.count) : 0;
+      }),
+      backgroundColor: "#4caf50",
+      borderRadius: 8,
+      barThickness: 30,     // 🔥 FIX WIDTH
+    },
+  ],
+};
 
   const facultyBarData = {
     labels: ["Taken", "Leave", "Off"],
@@ -303,22 +310,40 @@ function LectureAnalyticsModule({ role, userDepartment }) {
     ],
   };
 
-  const commonBarOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: true },
-      title: { display: false },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          precision: 0,
-        },
+const commonBarOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: true,
+      position: "top",
+      labels: {
+        boxWidth: 14,
+        padding: 15,
       },
     },
-  };
+  },
+  scales: {
+    x: {
+      grid: {
+        display: false,
+      },
+      ticks: {
+        color: "#6b7280",
+      },
+    },
+    y: {
+      beginAtZero: true,
+      grid: {
+        color: "#f1f5f9",
+      },
+      ticks: {
+        stepSize: 2,
+        color: "#6b7280",
+      },
+    },
+  },
+};
 
   const commonPieOptions = {
     responsive: true,
@@ -440,36 +465,38 @@ function LectureAnalyticsModule({ role, userDepartment }) {
           Performance: {performance}%
         </div>
       </div>
+      <div className="chart-card center-card">
+        <h3 className="chart-title">Weekly Lecture Analytics</h3>
 
-      <div className="chart-card" style={{ marginBottom: "20px" }}>
-        <h3>Weekly Lecture Analytics</h3>
-        <div style={{ height: "250px" }}>
+        <div className="chart-container">
           <Bar data={weeklyChartData} options={commonBarOptions} />
         </div>
       </div>
 
       <div className="analytics-row">
         <div className="chart-card">
-          <h3>
+          <div className="chart-card wide-card"> <h3>
             {isFaculty ? "Lecture Summary" : "Faculty Lecture Analytics"}
           </h3>
-          <div style={{ height: "260px" }}>
-            <Bar
-              data={isFaculty ? facultyBarData : deptBarData}
-              options={commonBarOptions}
-            />
-          </div>
+            <div style={{ height: "260px" }}>
+              <Bar
+                data={isFaculty ? facultyBarData : deptBarData}
+                options={commonBarOptions}
+              />
+            </div></div>
+
         </div>
 
         <div className="chart-card">
-          <h3>{isFaculty ? "Status Distribution" : "Department Distribution"}</h3>
-          <div style={{ height: "260px" }}>
-            <Pie
-              data={isFaculty ? facultyPieData : deptPieData}
-              options={commonPieOptions}
-            />
-          </div>
-        </div>
+          <div className="chart-card wide-card"> <h3>{isFaculty ? "Status Distribution" : "Department Distribution"}</h3>
+            <div style={{ height: "260px" }}>
+              <Pie
+                data={isFaculty ? facultyPieData : deptPieData}
+                options={commonPieOptions}
+              />
+            </div>
+          </div></div>
+
       </div>
 
       {!isFaculty && facultyList.length > 0 && (
@@ -511,17 +538,16 @@ function LectureAnalyticsModule({ role, userDepartment }) {
             gap: "10px",
           }}
         >
-          <h3 style={{ margin: 0 }}>Lecture History</h3>
 
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+
+          <h3 style={{ marginBottom: "10px" }}>Lecture History</h3>
+
+          <div className="lecture-filters">
+
             <select
               value={facultyFilter}
               onChange={(e) => setFacultyFilter(e.target.value)}
-              style={{
-                padding: "8px 10px",
-                borderRadius: "8px",
-                border: "1px solid #ccc",
-              }}
+              className="filter-item"
             >
               <option value="">All Faculty</option>
               {facultyList.map((f) => (
@@ -535,21 +561,13 @@ function LectureAnalyticsModule({ role, userDepartment }) {
               type="date"
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
-              style={{
-                padding: "8px 10px",
-                borderRadius: "8px",
-                border: "1px solid #ccc",
-              }}
+              className="filter-item"
             />
 
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              style={{
-                padding: "8px 10px",
-                borderRadius: "8px",
-                border: "1px solid #ccc",
-              }}
+              className="filter-item"
             >
               <option value="">All Status</option>
               <option value="taken">Taken</option>
@@ -563,31 +581,17 @@ function LectureAnalyticsModule({ role, userDepartment }) {
                 setStatusFilter("");
                 setDateFilter("");
               }}
-              style={{
-                padding: "8px 12px",
-                borderRadius: "8px",
-                border: "none",
-                background: "#e74c3c",
-                color: "#fff",
-                cursor: "pointer",
-              }}
+              className="clear-btn"
             >
               Clear Filters
             </button>
 
-            <button
-              onClick={exportCSV}
-              style={{
-                padding: "8px 12px",
-                borderRadius: "8px",
-                border: "none",
-                background: "#2d89ef",
-                color: "#fff",
-                cursor: "pointer",
-              }}
-            >
+            <button onClick={exportCSV} className="export-btn">
               Export CSV
             </button>
+
+
+
           </div>
         </div>
 
@@ -606,7 +610,7 @@ function LectureAnalyticsModule({ role, userDepartment }) {
             <tbody>
               {filteredRecords.map((r) => (
                 <tr key={r.id} style={{ transition: "0.2s" }}>
-                  <td>{new Date(r.lecture_date).toLocaleDateString()}</td>
+                  <td>{r.lecture_date?.slice(0, 10)}</td>
                   <td>{r.day_name}</td>
                   <td>{r.lecture_number}</td>
                   <td>{r.subject}</td>

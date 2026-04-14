@@ -1627,10 +1627,35 @@ ul li:hover {
   flex-wrap: wrap;
 }
 
+
+/* CENTER + LIMIT WIDTH */
+.center-card {
+  max-width: 1200px;
+  margin: 0 auto 20px auto;
+}
+
+/* TITLE */
+.chart-title {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #1f2937;
+}
+
+/* CHART AREA */
+.chart-container {
+  height: 280px;
+  padding: 10px;
+}
+
 .analytics-table tbody tr:hover {
   background: #f9f9f9;
 }
-
+.wide-card {
+  grid-column: span 2;
+  width: 545px;
+}
 .chart-card {
   background: #fff;
   padding: 16px;
@@ -1776,7 +1801,51 @@ ul li:hover {
     width: 100%;
   }
 }
+.lecture-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 
+  flex-wrap: nowrap;     
+  overflow-x: auto;      /* scroll if needed */
+
+  padding: 10px 0;
+}
+
+/* SAME SIZE ELEMENTS */
+.filter-item,
+.clear-btn,
+.export-btn {
+  height: 38px;
+  min-width: 140px;
+  
+}
+
+/* INPUT STYLE */
+.filter-item {
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+/* BUTTONS */
+.clear-btn {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.export-btn {
+  background: #2d89ef;
+  color: white;
+  border: none;
+  padding: 0 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
 
 /* ================================================================ GATEPASS MODULE  ========================================================== */
 
@@ -2393,6 +2462,13 @@ ul li:hover {
   border: none;
   cursor: pointer;
   background: #2d89ef;
+  color: white;
+  transition: 0.2s ease;
+}
+.filter-bar1 button {
+  border: none;
+  cursor: pointer;
+  background: red;
   color: white;
   transition: 0.2s ease;
 }

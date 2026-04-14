@@ -269,7 +269,11 @@ async function processAlert(alertId) {
     console.log("📩 Alert message:", alert.message);
 
 
-    const facultyPhone = faculty?.phone || "9999999999";
+    if (!faculty?.phone) {
+  console.log("❌ No faculty phone → SMS skipped");
+} else {
+  await sendSMS(faculty.phone, smsText);
+}
 
     const smsText = `🚨 Alert: ${student.name} is roaming during ${currentLecture.subject}`;
     await sendSMS(facultyPhone, smsText);

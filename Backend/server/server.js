@@ -22,6 +22,8 @@ import departmentReportRoutes from "./routes/departmentReport.routes.js";
 import * as faceapi from "face-api.js";
 import canvas from "canvas";
 
+const TEST_MODE = true;
+
 /* ========================================== FIX __dirname (ES MODULE FIX) ========================================================== */
 
 const __filename = fileURLToPath(import.meta.url);
@@ -322,7 +324,7 @@ app.post("/auto-face", async (req, res) => {
             `
             SELECT * FROM roaming_logs
             WHERE student_id = ?
-            AND detected_at >= NOW() - INTERVAL 1 MINUTE
+           AND detected_at >= NOW() - INTERVAL 30 SECOND
             `,
             [bestMatch.id]
           );
@@ -383,18 +385,19 @@ app.post("/auto-face", async (req, res) => {
 
               console.log("📘 Current Lecture:", currentLecture);
 
-              if (!currentLecture) {
-                console.log("❌ No active lecture → bunk skipped");
-              } else {
-                console.log("⛔ Skipping bunk");
-                return; 
-              }
+             if (!currentLecture) {
+  console.log("❌ No active lecture → bunk skipped");
+  continue;
+}
 
 
               //  NOW THIS WILL ALWAYS RUN
-              const isRecess =
-                currentLecture.time === "10:30-11:15" ||
-                currentLecture.time === "1:15-1:30";
+            const isRecess =
+  currentLecture &&
+  (
+    currentLecture.time === "10:30-11:15" ||
+    currentLecture.time === "1:15-1:30"
+  );
 
               if (
                 currentLecture.is_break === 1 ||

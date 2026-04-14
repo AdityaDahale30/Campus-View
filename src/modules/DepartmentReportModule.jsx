@@ -257,8 +257,8 @@ function DepartmentReportModule({ role }) {
             </option>
           ))}
         </select>
-
-        <button onClick={() => setDepartmentFilter("")}>Clear</button>
+ <div className="filter-bar1"><button onClick={() => setDepartmentFilter("")}>Clear</button></div>
+        
         <button onClick={exportCSV}>Export CSV</button>
       </div>
 
