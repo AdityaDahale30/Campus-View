@@ -1,0 +1,55 @@
+INSERT INTO timetable 
+(id, day, subject, teacher, year, department, className, time, isEdited, prev_subject, prev_teacher, lecture_number, is_break) 
+VALUES
+
+-- MONDAY
+(170,'Monday','BEE/PIC','SSG/RVP','1st','computer_engineering','B','8:30-10:30',0,NULL,NULL,1,0),
+(171,'Monday','RECESS','-','1st','computer_engineering','B','10:30-11:15',0,NULL,NULL,0,0),
+(172,'Monday','BEE','SSG','1st','computer_engineering','B','11:15-12:15',0,NULL,NULL,2,1),
+(173,'Monday','ASM','RBM','1st','computer_engineering','B','12:15-1:15',0,NULL,NULL,3,0),
+(174,'Monday','PIC/BLP','PVP/MGU','1st','computer_engineering','B','1:30-3:30',0,NULL,NULL,4,0),
+
+
+
+-- TUESDAY
+(175,'Tuesday','WPD/BEE','SMS/SSG','1st','computer_engineering','B','8:30-10:30',0,NULL,NULL,1,0),
+(176,'Tuesday','RECESS','-','1st','computer_engineering','B','10:30-11:15',0,NULL,NULL,0,0),
+(177,'Tuesday','BEE','XYZ','1st','computer_engineering','B','11:15-12:15',0,NULL,NULL,2,1),
+(178,'Tuesday','AMS','RBM','1st','computer_engineering','B','12:15-1:15',0,NULL,NULL,3,0),
+(179,'Tuesday','WPD/PCO','SMS/VNB','1st','computer_engineering','B','1:30-3:30',0,NULL,NULL,4,0),
+
+
+
+-- WEDNESDAY
+(180,'Wednesday','PIC','RVP','1st','computer_engineering','B','8:30-9:30',0,NULL,NULL,1,0),
+(181,'Wednesday','ASM','RBM','1st','computer_engineering','B','9:30-10:30',0,NULL,NULL,2,0),
+(182,'Wednesday','RECESS','-','1st','computer_engineering','B','10:30-11:15',0,NULL,NULL,0,1),
+(183,'Wednesday','TG/PIC','AGJ/RVP','1st','computer_engineering','B','11:15-1:15',0,NULL,NULL,3,0),
+(184,'Wednesday','AMS','RBM','1st','computer_engineering','B','1:30-3:30',0,NULL,NULL,4,0),
+(185,'Wednesday','BEE','XYZ','1st','computer_engineering','B','2:30-3:30',0,NULL,NULL,5,0),
+
+-- THURSDAY
+(186,'Thursday','BLP','MGU','1st','computer_engineering','B','8:30-9:30',0,NULL,NULL,1,0),
+(187,'Thursday','WPD','SMS','1st','computer_engineering','B','9:30-10:30',0,NULL,NULL,2,0),
+(188,'Thursday','RECESS','-','1st','computer_engineering','B','10:30-11:15',0,NULL,NULL,0,1),
+(189,'Thursday','BEE','SSG','1st','computer_engineering','B','11:15-12:15',0,NULL,NULL,3,0),
+(190,'Thursday','PIC','RVP','1st','computer_engineering','B','12:15-1:15',0,NULL,NULL,4,0),
+(191,'Thursday','PIC/TG','RVP/VNB','1st','computer_engineering','B','1:30-3:30',0,NULL,NULL,5,0),
+
+
+-- FRIDAY
+(192,'Friday','PIC','RVP','1st','computer_engineering','B','8:30-9:30',0,NULL,NULL,1,0),
+(193,'Friday','BLP','MGU','1st','computer_engineering','B','9:30-10:30',0,NULL,NULL,2,0),
+(194,'Friday','RECESS','-','1st','computer_engineering','B','10:30-11:15',0,NULL,NULL,0,1),
+(195,'Friday','PIC','SMS','1st','computer_engineering','B','11:15-12:15',0,NULL,NULL,3,0),
+(196,'Friday','WPD','SMS','1st','computer_engineering','B','12:15-1:15',0,NULL,NULL,4,0),
+(197,'Friday','BLP/WPD','MGU/SMS','1st','computer_engineering','B','1:30-3:30',0,NULL,NULL,5,0),
+
+
+-- SATURDAY
+(198,'Saturday','PIC','RVP','1st','computer_engineering','B','8:30-9:30',0,NULL,NULL,1,0),
+(199,'Saturday','AMS','RBM','1st','computer_engineering','B','9:30-10:30',0,NULL,NULL,2,0),
+(200,'Saturday','RECESS','-','1st','computer_engineering','B','10:30-11:15',0,NULL,NULL,0,1),
+(201,'Saturday','BEE/WPD','XYZ/SMS','1st','computer_engineering','B','11:15-1:15',0,NULL,NULL,3,0),
+(202,'Saturday','PCO/BEE','VNB/XYZ','1st','computer_engineering','B','1:30-3:30',0,NULL,NULL,4,0);
+

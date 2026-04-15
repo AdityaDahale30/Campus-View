@@ -118,10 +118,6 @@ async function processAlert(alertId) {
     const startTime = 8 * 60 + 30;
     const endTime = 15 * 60 + 30;
 
-    if (!TEST_MODE && (currentTimeInMinutes < startTime || currentTimeInMinutes > endTime)) {
-      console.log("⏰ Outside college hours → Alert ignored");
-      return;
-    }
 
     let dayName = new Date().toLocaleString("en-US", {
       weekday: "long",
@@ -264,19 +260,19 @@ async function processAlert(alertId) {
 
     console.log("✅ Alert updated successfully");
 
-    /* ================= DEBUG SMS ================= */
-    console.log("📞 Faculty phone:", faculty?.phone);
-    console.log("📩 Alert message:", alert.message);
+const smsText = `🚨 Alert: ${student.name} is roaming during ${currentLecture.subject}`;
 
+console.log("📞 Faculty phone:", faculty?.phone);
+console.log("📩 Alert message:", smsText);
 
-    if (!faculty?.phone) {
-  console.log("❌ No faculty phone → SMS skipped");
-} else {
-  await sendSMS(faculty.phone, smsText);
+let phoneToUse = faculty?.phone || "NO_PHONE";
+
+if (!faculty?.phone) {
+  console.log("❌ No faculty phone → logging SMS anyway");
 }
 
-    const smsText = `🚨 Alert: ${student.name} is roaming during ${currentLecture.subject}`;
-    await sendSMS(facultyPhone, smsText);
+// ✅ ALWAYS INSERT SMS LOG
+await sendSMS(phoneToUse, smsText);
 
   } catch (err) {
     console.log("❌ processAlert error:", err);

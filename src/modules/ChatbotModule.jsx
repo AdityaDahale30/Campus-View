@@ -457,6 +457,9 @@ function ChatbotModule() {
                           minute: "2-digit",
                         })}
                       </span>
+      <span className={`message-status ${msg.seen ? "seen" : ""}`}>
+  ✔✔
+</span>
                     </div>
 
 {/* ========================================================== DELETE BUTTON ==================================================================*/}

@@ -342,6 +342,24 @@ app.post("/auto-face", async (req, res) => {
 
           }
 
+          // 🔥 TRIGGER ALERT + SMS + LOGGING
+          try {
+            await fetch("http://localhost:5000/api/alerts/create-alert", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                student_id: bestMatch.id,
+                message: `🚨 ${bestMatch.name} detected roaming`
+              }),
+            });
+
+            console.log("🚀 Alert API triggered");
+          } catch (err) {
+            console.log("❌ Alert API error:", err);
+          }
+
           /* =========================================================== BUNK EVALUATION =============================================================== */
 
           try {
@@ -385,19 +403,16 @@ app.post("/auto-face", async (req, res) => {
 
               console.log("📘 Current Lecture:", currentLecture);
 
-             if (!currentLecture) {
-  console.log("❌ No active lecture → bunk skipped");
-  continue;
-}
 
 
-              //  NOW THIS WILL ALWAYS RUN
-            const isRecess =
-  currentLecture &&
-  (
-    currentLecture.time === "10:30-11:15" ||
-    currentLecture.time === "1:15-1:30"
-  );
+
+              
+              const isRecess =
+                currentLecture &&
+                (
+                  currentLecture.time === "10:30-11:15" ||
+                  currentLecture.time === "1:15-1:30"
+                );
 
               if (
                 currentLecture.is_break === 1 ||
