@@ -21,7 +21,6 @@ const Mainpage = () => {
   return (
     <>
 
-{/* =============================================================== HERO WRAPPER ============================================================ */}
 
       <div id="home" className="hero-wrapper">
         <div className="hero-container">

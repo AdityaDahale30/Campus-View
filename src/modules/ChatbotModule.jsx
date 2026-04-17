@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { showSuccess, showError, showConfirm, showLoading, closeAlert } from "../utils/alerts";
 
+
+
+
 function ChatbotModule() {
   const userData = localStorage.getItem("user");
   const user = userData ? JSON.parse(userData) : null;
@@ -42,8 +45,7 @@ function ChatbotModule() {
     return () => clearInterval(interval);
   }, [senderId, senderRole]);
 
-  /* ================================================================ LOAD ALL USERS =========================================================== */
-
+  /* ================= LOAD ALL USERS ================= */
   useEffect(() => {
     if (!senderId || !senderRole) return;
 
@@ -60,13 +62,12 @@ function ChatbotModule() {
 
     loadUsers();
 
-    const interval = setInterval(loadUsers, 3000);
+    const interval = setInterval(loadUsers, 3000); // refresh every 3 sec
 
     return () => clearInterval(interval);
   }, [senderId, senderRole]);
 
-  /* ================================================================ LOAD INCOMING ============================================================ */
-
+  /* ================= LOAD INCOMING ================= */
   useEffect(() => {
     if (!senderId || !senderRole) return;
 
@@ -87,8 +88,7 @@ function ChatbotModule() {
     return () => clearInterval(interval);
   }, [senderId, senderRole]);
 
-  /* ================================================================ LOAD UNREAD ============================================================== */
-
+  /* ================= LOAD UNREAD ================= */
   useEffect(() => {
     if (!senderId || !senderRole) return;
 
@@ -115,8 +115,7 @@ function ChatbotModule() {
     return () => clearInterval(interval);
   }, [senderId, senderRole]);
 
-  /* ============================================================= LOAD MESSAGES ================================================================ */
-
+  /* ================= LOAD MESSAGES ================= */
   useEffect(() => {
     if (!selectedUser || !senderId || !senderRole) return;
 
@@ -150,8 +149,7 @@ function ChatbotModule() {
     loadMessages();
   }, [selectedUser, senderId, senderRole]);
 
-  /* ================================================================ AUTO REFRESH ============================================================ */
-
+  /* ================= AUTO REFRESH ================= */
   useEffect(() => {
     if (!selectedUser || !senderId || !senderRole) return;
 
@@ -172,14 +170,12 @@ function ChatbotModule() {
     return () => clearInterval(interval);
   }, [selectedUser, senderId, senderRole, messages]);
 
-  /* =================================================================== AUTO SCROLL ============================================================ */
-
+  /* ================= AUTO SCROLL ================= */
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  /* ======================================================================= SEND =============================================================== */
-
+  /* ================= SEND ================= */
   const sendMessage = async () => {
     if (!selectedUser) return;
 
@@ -225,8 +221,7 @@ function ChatbotModule() {
     }
   };
 
-  /* ================================================================= FILTER USERS =========================================================== */
-
+  /* ================= FILTER USERS ================= */
   const filteredUsers = search.trim()
     ? users.filter(
       (u) =>
@@ -240,10 +235,10 @@ function ChatbotModule() {
       (u) => unreadCounts[`${u.id}_${u.role}`] > 0
     );
 
-  /* ===================================================================== DELETE ============================================================== */
-
+  /* ================= DELETE ================= */
   const deleteMessage = async (id) => {
 
+    // ✅ CONFIRM POPUP
     const result = await showConfirm(
       "Delete Message?",
       "This message will be permanently deleted"
@@ -252,14 +247,14 @@ function ChatbotModule() {
     if (!result.isConfirmed) return;
 
     try {
-
+      // ✅ LOADING
       showLoading("Deleting...");
 
       await axios.delete(`http://localhost:5000/api/chat/delete/${id}`);
 
       closeAlert();
 
-
+      // ✅ SUCCESS
       showSuccess("Deleted", "Message deleted successfully");
 
       setMessages(messages.filter((msg) => msg.id !== id));
@@ -267,13 +262,12 @@ function ChatbotModule() {
     } catch (err) {
       closeAlert();
 
-
+      // ✅ ERROR
       showError("Error", "Failed to delete message");
 
       console.log(err);
     }
   };
-
   return (
     <div className="chat-container">
       <div className="chat-sidebar">
@@ -353,8 +347,7 @@ function ChatbotModule() {
             </div>
           </div>
 
-{/* =============================================================== CHAT MESSAGES ===========================================================*/}
-
+          {/* ✅ CHAT MESSAGES */}
           <div className="chat-messages whatsapp-bg">
             {messages.map((msg, index) => {
               const currentDate = new Date(msg.created_at).toDateString();
@@ -367,8 +360,7 @@ function ChatbotModule() {
 
               return (
                 <>
-{/* ================================================================== DATE ================================================================= */}
-
+                  {/* DATE */}
                   {showDate && (
                     <div className="date-separator">
                       {new Date(msg.created_at).toLocaleDateString("en-GB", {
@@ -379,8 +371,7 @@ function ChatbotModule() {
                     </div>
                   )}
 
-{/* ================================================================== MESSAGE ================================================================ */}
-
+                  {/* MESSAGE */}
                   <div
                     key={msg.id}
                     className={`message ${String(msg.sender_id) === String(senderId)
@@ -393,22 +384,22 @@ function ChatbotModule() {
                         <img src={msg.file_url} style={{ width: "200px" }} />
                       )}
 
-                      {msg.file_type === "video" && (
-                        <div className="video-wrapper">
+                    {msg.file_type === "video" && (
+  <div className="video-wrapper">
+    
+    <video src={msg.file_url} controls className="chat-video" />
 
-                          <video src={msg.file_url} controls className="chat-video" />
+    {/* DOWNLOAD BUTTON */}
+    <a
+      href={msg.file_url}
+      download
+      className="video-download-btn"
+    >
+      ⬇ Download
+    </a>
 
-{/* ========================================================== DOWNLOAD BUTTON =========================================================== */}
-                          <a
-                            href={msg.file_url}
-                            download
-                            className="video-download-btn"
-                          >
-                            ⬇ Download
-                          </a>
-
-                        </div>
-                      )}
+  </div>
+)}
 
                       {msg.file_type === "audio" && (
                         <audio src={msg.file_url} controls />
@@ -417,8 +408,7 @@ function ChatbotModule() {
                       {msg.file_type === "file" && (
                         <div className="file-card">
 
-{/* ========================================================== ICON + NAME =================================================================== */}
-
+                          {/* ICON + NAME */}
                           <div className="file-top">
                             <div className="file-icon">
                               {msg.file_url.includes(".pdf") ? "📕" :
@@ -428,9 +418,9 @@ function ChatbotModule() {
                             <div>
                               <div className="file-name">
                                 {(() => {
-                                  const fullName = decodeURIComponent(msg.file_url.split("/").pop());
-                                  return fullName.substring(fullName.indexOf("_") + 1);
-                                })()}
+    const fullName = decodeURIComponent(msg.file_url.split("/").pop());
+    return fullName.substring(fullName.indexOf("_") + 1);
+  })()}
                               </div>
                               <div className="file-type">
                                 FILE
@@ -438,8 +428,7 @@ function ChatbotModule() {
                             </div>
                           </div>
 
-{/* =========================================================== ACTIONS ====================================================================== */}
-
+                          {/* ACTIONS */}
                           <div className="file-actions">
                             <a href={msg.file_url} download>Download</a>
                           </div>
@@ -457,23 +446,18 @@ function ChatbotModule() {
                           minute: "2-digit",
                         })}
                       </span>
-      <span className={`message-status ${msg.seen ? "seen" : ""}`}>
-  ✔✔
-</span>
                     </div>
-
-{/* ========================================================== DELETE BUTTON ==================================================================*/}
-
-                    {String(msg.sender_id) === String(senderId) && (
-                      <div
-                        className="delete-btn"
-                        onClick={() => deleteMessage(msg.id)}
-                      >
-                        🗑
-                      </div>
-                    )}
+  {/* DELETE BUTTON */}
+  {String(msg.sender_id) === String(senderId) && (
+    <div
+      className="delete-btn"
+      onClick={() => deleteMessage(msg.id)}
+    >
+      🗑
+    </div>
+  )}
                   </div>
-
+                  
                 </>
               );
             })}
@@ -485,8 +469,7 @@ function ChatbotModule() {
             <div className="file-preview-overlay">
               <div className="file-preview-box">
 
-{/*============================================================== CLOSE BUTTON ============================================================== */}
-
+                {/* CLOSE BUTTON */}
                 <button
                   className="close-preview"
                   onClick={() => {
@@ -497,8 +480,7 @@ function ChatbotModule() {
                   ✕
                 </button>
 
-{/*===============================================================  PREVIEW ===================================================================*/}
-
+                {/* PREVIEW */}
                 {file.type.startsWith("image") && (
                   <img src={previewFile} className="preview-img" />
                 )}
@@ -514,22 +496,18 @@ function ChatbotModule() {
                     </div>
                   )}
 
-{/*=============================================================== SEND BUTTON ================================================================*/}
-
+                {/* SEND BUTTON */}
                 <button className="preview-send-btn" onClick={sendMessage}>
                   Send
                 </button>
               </div>
             </div>
           )}
-
-{/*================================================================= INPUT ====================================================================*/}
-
+          {/* ✅ INPUT */}
           <div className="chat-input">
             <div className="input-box">
 
-{/*============================================================ 📎 FILE BUTTON ================================================================*/}
-
+              {/* 📎 FILE BUTTON */}
               <label className="file-btn">
                 📎
                 <input
@@ -559,8 +537,7 @@ function ChatbotModule() {
 
             </div>
 
-{/*============================================================= SEND BUTTON ================================================================*/}
-
+            {/* SEND BUTTON */}
             <button className="send-btn" onClick={sendMessage}>
               ➤
             </button>
